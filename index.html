@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12th Grade Math Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #1a202c;
+            background-image: radial-gradient(circle at top right, #4a0e73, #1a202c 70%);
+            color: #e2e8f0;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        .btn-primary {
+            background-color: #8B5CF6; /* Violet-500 */
+        }
+        .btn-primary:hover {
+            background-color: #7C3AED; /* Violet-600 */
+        }
+        .btn-secondary {
+            background-color: #374151; /* Gray-700 */
+        }
+        .btn-secondary:hover {
+            background-color: #4B5563; /* Gray-600 */
+        }
+        .option-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .option-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .option-btn.correct {
+            background-color: #10B981; /* Emerald-500 */
+            border-color: #059669;
+            color: white;
+        }
+        .option-btn.wrong {
+            background-color: #EF4444; /* Red-500 */
+            border-color: #DC2626;
+            color: white;
+        }
+        .feedback-animation {
+            animation: fadeInOut 2s ease-in-out;
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; transform: scale(0.8); }
+            20%, 80% { opacity: 1; transform: scale(1); }
+        }
+        /* Hide scrollbar */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div id="main-container" class="w-full max-w-4xl mx-auto">
+
+        <!-- Language Selection Screen -->
+        <div id="language-selection" class="text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-2 text-white">Welcome!</h1>
+            <h2 class="text-xl md:text-2xl font-semibold mb-8 text-slate-300" id="welcome-subtitle">Choose Your Language</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <button onclick="setLanguage('en')" class="btn btn-primary text-white font-bold py-4 px-6 rounded-lg text-lg">English</button>
+                <button onclick="setLanguage('hi')" class="btn btn-primary text-white font-bold py-4 px-6 rounded-lg text-lg">हिन्दी</button>
+                <button onclick="setLanguage('or')" class="btn btn-primary text-white font-bold py-4 px-6 rounded-lg text-lg">ଓଡ଼ିଆ</button>
+            </div>
+        </div>
+
+        <!-- Domain and Difficulty Selection Screen -->
+        <div id="config-selection" class="hidden">
+            <div class="glass-card p-8 rounded-2xl shadow-2xl">
+                <h2 class="text-3xl font-bold text-center mb-6" id="config-title">Game Setup</h2>
+                
+                <!-- Domain Selection -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4" id="domain-title">1. Choose a Domain</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button id="calculus-btn" onclick="setDomain('calculus')" class="btn btn-secondary text-white font-bold py-3 px-5 rounded-lg">Calculus</button>
+                        <button id="probability-btn" onclick="setDomain('probability')" class="btn btn-secondary text-white font-bold py-3 px-5 rounded-lg">Probability</button>
+                    </div>
+                </div>
+
+                <!-- Difficulty Selection -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4" id="difficulty-title">2. Choose a Difficulty</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button id="easy-btn" onclick="setDifficulty('easy')" class="btn btn-secondary text-white font-bold py-3 px-5 rounded-lg">Easy</button>
+                        <button id="medium-btn" onclick="setDifficulty('medium')" class="btn btn-secondary text-white font-bold py-3 px-5 rounded-lg">Medium</button>
+                        <button id="hard-btn" onclick="setDifficulty('hard')" class="btn btn-secondary text-white font-bold py-3 px-5 rounded-lg">Hard</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="hidden">
+            <div class="glass-card p-6 md:p-8 rounded-2xl shadow-2xl w-full">
+                <div class="flex justify-between items-center mb-4">
+                    <div id="progress-text" class="text-slate-300">Question 1/10</div>
+                    <div id="score-text" class="text-slate-300">Score: 0</div>
+                </div>
+                <div class="bg-slate-900/50 p-6 rounded-lg mb-6 min-h-[120px] flex items-center justify-center">
+                    <p id="question-text" class="text-xl md:text-2xl text-center font-semibold text-white"></p>
+                </div>
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Options will be injected here -->
+                </div>
+                 <div id="feedback-container" class="h-16 flex items-center justify-center"></div>
+            </div>
+        </div>
+
+    </div>
+    
+    <!-- Explanation Modal -->
+    <div id="explanation-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+        <div class="glass-card p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
+            <h2 id="modal-title" class="text-2xl font-bold mb-4 text-red-400">Incorrect!</h2>
+            <p id="modal-correct-answer" class="mb-4 text-lg">The correct answer is:</p>
+            <div id="modal-explanation" class="bg-slate-900/50 p-4 rounded-lg mb-6 text-slate-300"></div>
+            <button id="modal-next-btn" onclick="closeExplanationModal()" class="btn btn-primary text-white font-bold py-2 px-6 rounded-lg">Next Question</button>
+        </div>
+    </div>
+
+    <!-- Final Score Modal -->
+    <div id="final-score-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+        <div class="glass-card p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
+            <h2 id="final-modal-title" class="text-3xl font-bold mb-2 text-white">Game Over!</h2>
+            <p id="final-score-text" class="text-xl mb-6 text-slate-300">Your final score is:</p>
+            <p id="final-score-display" class="text-6xl font-bold mb-8 text-violet-400"></p>
+            <div class="flex gap-4 justify-center">
+                <button id="restart-btn" onclick="restartGame()" class="btn btn-primary text-white font-bold py-3 px-6 rounded-lg">Play Again</button>
+                 <button id="home-btn" onclick="goHome()" class="btn btn-secondary text-white font-bold py-3 px-6 rounded-lg">Home</button>
+            </div>
+        </div>
+    </div>
+
+
+<script>
+    // --- STATE MANAGEMENT ---
+    let currentLanguage = 'en';
+    let currentDomain = '';
+    let currentDifficulty = '';
+    let questions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let questionsAnswered = false;
+
+    // --- DOM ELEMENTS ---
+    const languageSelection = document.getElementById('language-selection');
+    const configSelection = document.getElementById('config-selection');
+    const gameScreen = document.getElementById('game-screen');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const progressText = document.getElementById('progress-text');
+    const scoreText = document.getElementById('score-text');
+    const feedbackContainer = document.getElementById('feedback-container');
+    
+    // Modals
+    const explanationModal = document.getElementById('explanation-modal');
+    const finalScoreModal = document.getElementById('final-score-modal');
+
+    // --- TRANSLATIONS & UI TEXT ---
+    const translations = {
+        en: {
+            welcomeSubtitle: "Choose Your Language",
+            configTitle: "Game Setup",
+            domainTitle: "1. Choose a Domain",
+            calculus: "Calculus",
+            probability: "Probability",
+            difficultyTitle: "2. Choose a Difficulty",
+            easy: "Easy",
+            medium: "Medium",
+            hard: "Hard",
+            question: "Question",
+            score: "Score",
+            correctFeedback: ["Powerful!", "Cracked!", "Brilliant!", "Excellent!"],
+            modalTitle: "Incorrect!",
+            modalCorrectAnswer: "The correct answer is:",
+            modalNextBtn: "Next Question",
+            finalModalTitle: "Game Over!",
+            finalScoreText: "Your final score is:",
+            restartBtn: "Play Again",
+            homeBtn: "Home"
+        },
+        hi: {
+            welcomeSubtitle: "अपनी भाषा चुनें",
+            configTitle: "गेम सेटअप",
+            domainTitle: "1. एक डोमेन चुनें",
+            calculus: "कैलकुलस",
+            probability: "प्रायिकता",
+            difficultyTitle: "2. एक कठिनाई चुनें",
+            easy: "आसान",
+            medium: "मध्यम",
+            hard: "कठिन",
+            question: "प्रश्न",
+            score: "स्कोर",
+            correctFeedback: ["बहुत बढ़िया!", "शानदार!", "अद्भुत!", "उत्कृष्ट!"],
+            modalTitle: "गलत!",
+            modalCorrectAnswer: "सही उत्तर है:",
+            modalNextBtn: "अगला प्रश्न",
+            finalModalTitle: "खेल खत्म!",
+            finalScoreText: "आपका अंतिम स्कोर है:",
+            restartBtn: "फिर से खेलें",
+            homeBtn: "होम"
+        },
+        or: {
+            welcomeSubtitle: "ଆପଣଙ୍କ ଭାଷା ବାଛନ୍ତୁ",
+            configTitle: "ଗେମ୍ ସେଟଅପ୍",
+            domainTitle: "1. ଏକ ଡୋମେନ୍ ବାଛନ୍ତୁ",
+            calculus: "କାଲକୁଲସ୍",
+            probability: "ସମ୍ଭାବନା",
+            difficultyTitle: "2. ଏକ କଠିନତା ବାଛନ୍ତୁ",
+            easy: "ସହଜ",
+            medium: "ମଧ୍ୟମ",
+            hard: "କଠିନ",
+            question: "ପ୍ରଶ୍ନ",
+            score: "ସ୍କୋର",
+            correctFeedback: ["ଶକ୍ତିଶାଳୀ!", "ଉତ୍ତମ!", "ଚମତ୍କାର!", "ଅద్ଭୁତ!"],
+            modalTitle: "ଭୁଲ!",
+            modalCorrectAnswer: "ଠିକ୍ ଉତ୍ତର ହେଉଛି:",
+            modalNextBtn: "ପରବର୍ତ୍ତୀ ପ୍ରଶ୍ନ",
+            finalModalTitle: "ଖେଳ ସମାପ୍ତ!",
+            finalScoreText: "ଆପଣଙ୍କର ଅନ୍ତିମ ସ୍କୋର ହେଉଛି:",
+            restartBtn: "ପୁଣି ଖେଳନ୍ତୁ",
+            homeBtn: "ହୋମ୍"
+        }
+    };
+    
+    // --- QUESTIONS DATABASE ---
+    const allQuestions = {
+        calculus: {
+            easy: [
+                { q: { en: "Find the derivative of f(x) = x³ + 5x - 2", hi: "f(x) = x³ + 5x - 2 का अवकलज ज्ञात कीजिए", or: "f(x) = x³ + 5x - 2 ର ଡେରିଭେଟିଭ୍ ଖୋଜ" }, options: [{ en: "3x² + 5", hi: "3x² + 5", or: "3x² + 5" }, { en: "x² + 5", hi: "x² + 5", or: "x² + 5" }, { en: "3x³ + 5x", hi: "3x³ + 5x", or: "3x³ + 5x" }, { en: "3x", hi: "3x", or: "3x" }], answer: 0, explanation: { en: "Using the power rule, the derivative of xⁿ is nxⁿ⁻¹. So, d/dx(x³) = 3x² and d/dx(5x) = 5. The derivative of a constant (-2) is 0.", hi: "शक्ति नियम का उपयोग करते हुए, xⁿ का अवकलज nxⁿ⁻¹ है। इसलिए, d/dx(x³) = 3x² और d/dx(5x) = 5। एक स्थिरांक (-2) का अवकलज 0 है।", or: "ପାୱାର୍ ନିୟମ ବ୍ୟବହାର କରି, xⁿ ର ଡେରିଭେଟିଭ୍ ହେଉଛି nxⁿ⁻¹। ତେଣୁ, d/dx(x³) = 3x² ଏବଂ d/dx(5x) = 5। ଏକ ସ୍ଥିରାଙ୍କ (-2) ର ଡେରିଭେଟିଭ୍ 0 ଅଟେ।" } },
+                { q: { en: "What is the integral of 2x dx?", hi: "2x dx का समाकलन क्या है?", or: "2x dx ର ଇଣ୍ଟିଗ୍ରାଲ୍ କ'ଣ?" }, options: [{ en: "x² + C", hi: "x² + C", or: "x² + C" }, { en: "2x² + C", hi: "2x² + C", or: "2x² + C" }, { en: "x + C", hi: "x + C", or: "x + C" }, { en: "2 + C", hi: "2 + C", or: "2 + C" }], answer: 0, explanation: { en: "Using the power rule for integration, ∫xⁿ dx = (xⁿ⁺¹)/(n+1) + C. Here, ∫2x dx = 2 * (x¹⁺¹)/(1+1) + C = x² + C.", hi: "समाकलन के लिए शक्ति नियम का उपयोग करते हुए, ∫xⁿ dx = (xⁿ⁺¹)/(n+1) + C। यहाँ, ∫2x dx = 2 * (x¹⁺¹)/(1+1) + C = x² + C।", or: "ଇଣ୍ଟିଗ୍ରେସନ୍ ପାଇଁ ପାୱାର୍ ନିୟମ ବ୍ୟବହାର କରି, ∫xⁿ dx = (xⁿ⁺¹)/(n+1) + C। ଏଠାରେ, ∫2x dx = 2 * (x¹⁺¹)/(1+1) + C = x² + C।" } },
+                { q: { en: "What is the derivative of eˣ?", hi: "eˣ का अवकलज क्या है?", or: "eˣ ର ଡେରିଭେଟିଭ୍ କ'ଣ?" }, options: [{ en: "eˣ", hi: "eˣ", or: "eˣ" }, { en: "xeˣ⁻¹", hi: "xeˣ⁻¹", or: "xeˣ⁻¹" }, { en: "ln(x)", hi: "ln(x)", or: "ln(x)" }, { en: "1", hi: "1", or: "1" }], answer: 0, explanation: { en: "The derivative of eˣ is a special case, it is simply eˣ.", hi: "eˣ का अवकलज एक विशेष मामला है, यह केवल eˣ है।", or: "eˣ ର ଡେରିଭେଟିଭ୍ ଏକ ବିଶେଷ ମାମଲା, ଏହା କେବଳ eˣ ଅଟେ।" } },
+                { q: { en: "What is the integral of cos(x) dx?", hi: "cos(x) dx का समाकलन क्या है?", or: "cos(x) dx ର ଇଣ୍ଟିଗ୍ରାଲ୍ କ'ଣ?" }, options: [{ en: "sin(x) + C", hi: "sin(x) + C", or: "sin(x) + C" }, { en: "-sin(x) + C", hi: "-sin(x) + C", or: "-sin(x) + C" }, { en: "cos(x) + C", hi: "cos(x) + C", or: "cos(x) + C" }, { en: "-cos(x) + C", hi: "-cos(x) + C", or: "-cos(x) + C" }], answer: 0, explanation: { en: "The integral of cos(x) is sin(x). We add C as the constant of integration.", hi: "cos(x) का समाकलन sin(x) है। हम C को समाकलन स्थिरांक के रूप में जोड़ते हैं।", or: "cos(x) ର ଇଣ୍ଟିଗ୍ରାଲ୍ sin(x) ଅଟେ। ଆମେ C କୁ ଇଣ୍ଟିଗ୍ରେସନ୍ ର ସ୍ଥିରାଙ୍କ ଭାବରେ ଯୋଗ କରୁ।" } },
+                { q: { en: "Find the derivative of a constant, f(x) = 7.", hi: "एक स्थिरांक f(x) = 7 का अवकलज ज्ञात कीजिए।", or: "ଏକ ସ୍ଥିରାଙ୍କ f(x) = 7 ର ଡେରିଭେଟିଭ୍ ଖୋଜ।" }, options: [{ en: "0", hi: "0", or: "0" }, { en: "7", hi: "7", or: "7" }, { en: "1", hi: "1", or: "1" }, { en: "7x", hi: "7x", or: "7x" }], answer: 0, explanation: { en: "The derivative of any constant number is always 0, as there is no change in the function's value.", hi: "किसी भी स्थिरांक संख्या का अवकलज हमेशा 0 होता है, क्योंकि फलन के मान में कोई परिवर्तन नहीं होता है।", or: "କୌଣସି ସ୍ଥିରାଙ୍କ ସଂଖ୍ୟାର ଡେରିଭେଟିଭ୍ ସର୍ବଦା 0 ଅଟେ, କାରଣ ଫଙ୍କସନର ମୂଲ୍ୟରେ କୌଣସି ପରିବର୍ତ୍ତନ ହୁଏ ନାହିଁ।" } },
+                { q: { en: "What is the integral of 1/x dx?", hi: "1/x dx का समाकलन क्या है?", or: "1/x dx ର ଇଣ୍ଟିଗ୍ରାଲ୍ କ'ଣ?" }, options: [{ en: "ln|x| + C", hi: "ln|x| + C", or: "ln|x| + C" }, { en: "1/x² + C", hi: "1/x² + C", or: "1/x² + C" }, { en: "x + C", hi: "x + C", or: "x + C" }, { en: "-1/x² + C", hi: "-1/x² + C", or: "-1/x² + C" }], answer: 0, explanation: { en: "The integral of 1/x is the natural logarithm of the absolute value of x, plus the constant of integration C.", hi: "1/x का समाकलन x के निरपेक्ष मान का प्राकृतिक लघुगणक है, साथ ही समाकलन स्थिरांक C।", or: "1/x ର ଇଣ୍ଟିଗ୍ରାଲ୍ x ର ସମ୍ପୂର୍ଣ୍ଣ ମୂଲ୍ୟର ପ୍ରାକୃତିକ ଲଘୁଗଣକ ଅଟେ, ଏବଂ ଇଣ୍ଟିଗ୍ରେସନ୍ ର ସ୍ଥିରାଙ୍କ C।" } },
+                { q: { en: "Find the derivative of ln(x).", hi: "ln(x) का अवकलज ज्ञात कीजिए।", or: "ln(x) ର ଡେରିଭେଟିଭ୍ ଖୋଜ।" }, options: [{ en: "1/x", hi: "1/x", or: "1/x" }, { en: "x", hi: "x", or: "x" }, { en: "eˣ", hi: "eˣ", or: "eˣ" }, { en: "1", hi: "1", or: "1" }], answer: 0, explanation: { en: "The derivative of the natural logarithm function, ln(x), is 1/x.", hi: "प्राकृतिक लघुगणक फलन, ln(x), का अवकलज 1/x है।", or: "ପ୍ରାକୃତିକ ଲଘୁଗଣକ ଫଙ୍କସନ୍, ln(x) ର ଡେରିଭେଟିଭ୍ 1/x ଅଟେ।" } },
+                { q: { en: "Evaluate the integral of 5 dx.", hi: "5 dx का समाकलन ज्ञात कीजिए।", or: "5 dx ର ଇଣ୍ଟିଗ୍ରାଲ୍ ମୂଲ୍ୟାଙ୍କନ କରନ୍ତୁ।" }, options: [{ en: "5x + C", hi: "5x + C", or: "5x + C" }, { en: "5 + C", hi: "5 + C", or: "5 + C" }, { en: "x + C", hi: "x + C", or: "x + C" }, { en: "0", hi: "0", or: "0" }], answer: 0, explanation: { en: "The integral of a constant 'a' is 'ax'. So, the integral of 5 is 5x. We add the constant of integration, C.", hi: "एक स्थिरांक 'a' का समाकलन 'ax' है। इसलिए, 5 का समाकलन 5x है। हम समाकलन स्थिरांक, C, जोड़ते हैं।", or: "ଏକ ସ୍ଥିରାଙ୍କ 'a' ର ଇଣ୍ଟିଗ୍ରାଲ୍ 'ax' ଅଟେ। ତେଣୁ, 5 ର ଇଣ୍ଟିଗ୍ରାଲ୍ 5x ଅଟେ। ଆମେ ଇଣ୍ଟିଗ୍ରେସନ୍ ର ସ୍ଥିରାଙ୍କ, C, ଯୋଗ କରୁ।" } }
+            ],
+            medium: [
+                { q: { en: "Find the derivative of f(x) = sin(x²)", hi: "f(x) = sin(x²) का अवकलज ज्ञात कीजिए", or: "f(x) = sin(x²) ର ଡେରିଭେଟିଭ୍ ଖୋଜ" }, options: [{ en: "cos(x²) * 2x", hi: "cos(x²) * 2x", or: "cos(x²) * 2x" }, { en: "cos(x²)", hi: "cos(x²)", or: "cos(x²)" }, { en: "-cos(x²)", hi: "-cos(x²)", or: "-cos(x²)" }, { en: "sin(2x)", hi: "sin(2x)", or: "sin(2x)" }], answer: 0, explanation: { en: "This requires the chain rule: d/dx(f(g(x))) = f'(g(x)) * g'(x). Here, f(u) = sin(u) and g(x) = x². So, f'(u) = cos(u) and g'(x) = 2x. The result is cos(x²) * 2x.", hi: "इसके लिए श्रृंखला नियम की आवश्यकता है: d/dx(f(g(x))) = f'(g(x)) * g'(x)। यहाँ, f(u) = sin(u) और g(x) = x²। इसलिए, f'(u) = cos(u) और g'(x) = 2x। परिणाम cos(x²) * 2x है।", or: "ଏଥିପାଇଁ ଚେନ୍ ନିୟମ ଆବଶ୍ୟକ: d/dx(f(g(x))) = f'(g(x)) * g'(x)। ଏଠାରେ, f(u) = sin(u) ଏବଂ g(x) = x²। ତେଣୁ, f'(u) = cos(u) ଏବଂ g'(x) = 2x। ଫଳାଫଳ ହେଉଛି cos(x²) * 2x।" } },
+                { q: { en: "Evaluate the definite integral of 3x² from x=0 to x=2.", hi: "x=0 से x=2 तक 3x² का निश्चित समाकलन ज्ञात कीजिए।", or: "x=0 ରୁ x=2 ପର୍ଯ୍ୟନ୍ତ 3x² ର ନିର୍ଦ୍ଦିଷ୍ଟ ଇଣ୍ଟିଗ୍ରାଲ୍ ମୂଲ୍ୟାଙ୍କନ କରନ୍ତୁ।" }, options: [{ en: "8", hi: "8", or: "8" }, { en: "12", hi: "12", or: "12" }, { en: "6", hi: "6", or: "6" }, { en: "24", hi: "24", or: "24" }], answer: 0, explanation: { en: "The integral of 3x² is x³. Evaluating from 0 to 2 gives (2)³ - (0)³ = 8 - 0 = 8.", hi: "3x² का समाकलन x³ है। 0 से 2 तक मूल्यांकन करने पर (2)³ - (0)³ = 8 - 0 = 8 मिलता है।", or: "3x² ର ଇଣ୍ଟିଗ୍ରାଲ୍ ହେଉଛି x³। 0 ରୁ 2 ପର୍ଯ୍ୟନ୍ତ ମୂଲ୍ୟାଙ୍କନ କଲେ (2)³ - (0)³ = 8 - 0 = 8 ମିଳେ।" } },
+                { q: { en: "Find the derivative of x * sin(x) using the product rule.", hi: "गुणन नियम का उपयोग करके x * sin(x) का अवकलज ज्ञात कीजिए।", or: "ଗୁଣନ ନିୟମ ବ୍ୟବହାର କରି x * sin(x) ର ଡେରିଭେଟିଭ୍ ଖୋଜ।" }, options: [{ en: "sin(x) + x*cos(x)", hi: "sin(x) + x*cos(x)", or: "sin(x) + x*cos(x)" }, { en: "cos(x)", hi: "cos(x)", or: "cos(x)" }, { en: "x*sin(x)", hi: "x*sin(x)", or: "x*sin(x)" }, { en: "1 * cos(x)", hi: "1 * cos(x)", or: "1 * cos(x)" }], answer: 0, explanation: { en: "Product rule: (uv)' = u'v + uv'. Here u=x, v=sin(x). So u'=1, v'=cos(x). The result is 1*sin(x) + x*cos(x).", hi: "गुणन नियम: (uv)' = u'v + uv'। यहाँ u=x, v=sin(x) है। तो u'=1, v'=cos(x) है। परिणाम 1*sin(x) + x*cos(x) है।", or: "ଗୁଣନ ନିୟମ: (uv)' = u'v + uv'। ଏଠାରେ u=x, v=sin(x) ଅଟେ। ତେଣୁ u'=1, v'=cos(x) ଅଟେ। ଫଳାଫଳ 1*sin(x) + x*cos(x) ଅଟେ।" } },
+                { q: { en: "What is the integral of e³ˣ dx?", hi: "e³ˣ dx का समाकलन क्या है?", or: "e³ˣ dx ର ଇଣ୍ଟିଗ୍ରାଲ୍ କ'ଣ?" }, options: [{ en: "(1/3)e³ˣ + C", hi: "(1/3)e³ˣ + C", or: "(1/3)e³ˣ + C" }, { en: "e³ˣ + C", hi: "e³ˣ + C", or: "e³ˣ + C" }, { en: "3e³ˣ + C", hi: "3e³ˣ + C", or: "3e³ˣ + C" }, { en: "eˣ + C", hi: "eˣ + C", or: "eˣ + C" }], answer: 0, explanation: { en: "Using u-substitution where u=3x, du=3dx, so dx=du/3. The integral becomes (1/3)∫eᵘ du = (1/3)eᵘ + C = (1/3)e³ˣ + C.", hi: "u-प्रतिस्थापन का उपयोग करते हुए जहाँ u=3x, du=3dx, इसलिए dx=du/3 है। समाकलन (1/3)∫eᵘ du = (1/3)eᵘ + C = (1/3)e³ˣ + C हो जाता है।", or: "u-ପ୍ରତିସ୍ଥାପନ ବ୍ୟବହାର କରି ଯେଉଁଠାରେ u=3x, du=3dx, ତେଣୁ dx=du/3 ଅଟେ। ଇଣ୍ଟିଗ୍ରାଲ୍ (1/3)∫eᵘ du = (1/3)eᵘ + C = (1/3)e³ˣ + C ହୋଇଯାଏ।" } },
+                { q: { en: "Find the slope of the tangent line to the curve y = x² - 2x at x = 3.", hi: "x = 3 पर वक्र y = x² - 2x की स्पर्श रेखा का ढलान ज्ञात कीजिए।", or: "x = 3 ରେ ବକ୍ର y = x² - 2x ର ସ୍ପର୍ଶକ ରେଖାର ଢାଲ ଖୋଜ।" }, options: [{ en: "4", hi: "4", or: "4" }, { en: "3", hi: "3", or: "3" }, { en: "9", hi: "9", or: "9" }, { en: "2", hi: "2", or: "2" }], answer: 0, explanation: { en: "The slope of the tangent line is the derivative at that point. The derivative y' = 2x - 2. At x=3, the slope is 2(3) - 2 = 6 - 2 = 4.", hi: "स्पर्श रेखा का ढलान उस बिंदु पर अवकलज है। अवकलज y' = 2x - 2 है। x=3 पर, ढलान 2(3) - 2 = 6 - 2 = 4 है।", or: "ସ୍ପର୍ଶକ ରେଖାର ଢାଲ ସେହି ବିନ୍ଦୁରେ ଡେରିଭେଟିଭ୍ ଅଟେ। ଡେରିଭେଟିଭ୍ y' = 2x - 2 ଅଟେ। x=3 ରେ, ଢାଲ 2(3) - 2 = 6 - 2 = 4 ଅଟେ।" } },
+                { q: { en: "Find the derivative of tan(x).", hi: "tan(x) का अवकलज ज्ञात कीजिए।", or: "tan(x) ର ଡେରିଭେଟିଭ୍ ଖୋଜ।" }, options: [{ en: "sec²(x)", hi: "sec²(x)", or: "sec²(x)" }, { en: "cot(x)", hi: "cot(x)", or: "cot(x)" }, { en: "-sec²(x)", hi: "-sec²(x)", or: "-sec²(x)" }, { en: "sin(x)", hi: "sin(x)", or: "sin(x)" }], answer: 0, explanation: { en: "The derivative of tan(x) is a standard result, which is secant squared of x, or sec²(x).", hi: "tan(x) का अवकलज एक मानक परिणाम है, जो x का secant squared, या sec²(x) है।", or: "tan(x) ର ଡେରିଭେଟିଭ୍ ଏକ ମାନକ ଫଳାଫଳ, ଯାହା x ର secant squared, କିମ୍ବା sec²(x) ଅଟେ।" } },
+                { q: { en: "Integrate (2x+1)⁴ dx.", hi: "(2x+1)⁴ dx का समाकलन करें।", or: "(2x+1)⁴ dx କୁ ଇଣ୍ଟିଗ୍ରେଟ୍ କରନ୍ତୁ।" }, options: [{ en: "(1/10)(2x+1)⁵ + C", hi: "(1/10)(2x+1)⁵ + C", or: "(1/10)(2x+1)⁵ + C" }, { en: "(1/5)(2x+1)⁵ + C", hi: "(1/5)(2x+1)⁵ + C", or: "(1/5)(2x+1)⁵ + C" }, { en: "4(2x+1)³ + C", hi: "4(2x+1)³ + C", or: "4(2x+1)³ + C" }, { en: "8(2x+1)³ + C", hi: "8(2x+1)³ + C", or: "8(2x+1)³ + C" }], answer: 0, explanation: { en: "Use u-substitution with u = 2x+1, so du = 2dx and dx = du/2. The integral becomes (1/2)∫u⁴du = (1/2)(u⁵/5) + C = u⁵/10 + C = (1/10)(2x+1)⁵ + C.", hi: "u = 2x+1 के साथ u-प्रतिस्थापन का उपयोग करें, तो du = 2dx और dx = du/2 है। समाकलन (1/2)∫u⁴du = (1/2)(u⁵/5) + C = u⁵/10 + C = (1/10)(2x+1)⁵ + C हो जाता है।", or: "u = 2x+1 ସହିତ u-ପ୍ରତିସ୍ଥାପନ ବ୍ୟବହାର କରନ୍ତୁ, ତେଣୁ du = 2dx ଏବଂ dx = du/2 ଅଟେ। ଇଣ୍ଟିଗ୍ରାଲ୍ (1/2)∫u⁴du = (1/2)*(u⁵/5) + C = u⁵/10 + C = (1/10)(2x+1)⁵ + C ହୋଇଯାଏ।" } },
+                { q: { en: "Find the derivative of x / (x+1) using the quotient rule.", hi: "भागफल नियम का उपयोग करके x / (x+1) का अवकलज ज्ञात कीजिए।", or: "ଭାଗଫଳ ନିୟମ ବ୍ୟବହାର କରି x / (x+1) ର ଡେରିଭେଟିଭ୍ ଖୋଜ।" }, options: [{ en: "1 / (x+1)²", hi: "1 / (x+1)²", or: "1 / (x+1)²" }, { en: "-1 / (x+1)²", hi: "-1 / (x+1)²", or: "-1 / (x+1)²" }, { en: "1", hi: "1", or: "1" }, { en: "x² / (x+1)", hi: "x² / (x+1)", or: "x² / (x+1)" }], answer: 0, explanation: { en: "Quotient rule: (u/v)' = (u'v - uv')/v². Here u=x, v=x+1. u'=1, v'=1. So, (1*(x+1) - x*1)/(x+1)² = (x+1-x)/(x+1)² = 1/(x+1)².", hi: "भागफल नियम: (u/v)' = (u'v - uv')/v²। यहाँ u=x, v=x+1 है। u'=1, v'=1 है। तो, (1*(x+1) - x*1)/(x+1)² = (x+1-x)/(x+1)² = 1/(x+1)²।", or: "ଭାଗଫଳ ନିୟମ: (u/v)' = (u'v - uv')/v²। ଏଠାରେ u=x, v=x+1 ଅଟେ। u'=1, v'=1 ଅଟେ। ତେଣୁ, (1*(x+1) - x*1)/(x+1)² = (x+1-x)/(x+1)² = 1/(x+1)²।" } }
+            ],
+            hard: [
+                { q: { en: "Find the second derivative of f(x) = e^(x²)", hi: "f(x) = e^(x²) का दूसरा अवकलज ज्ञात कीजिए", or: "f(x) = e^(x²) ର ଦ୍ୱିତୀୟ ଡେରିଭେଟିଭ୍ ଖୋଜ" }, options: [{ en: "(4x² + 2)e^(x²)", hi: "(4x² + 2)e^(x²)", or: "(4x² + 2)e^(x²)" }, { en: "2xe^(x²)", hi: "2xe^(x²)", or: "2xe^(x²)" }, { en: "4x²e^(x²)", hi: "4x²e^(x²)", or: "4x²e^(x²)" }, { en: "e^(x²)", hi: "e^(x²)", or: "e^(x²)" }], answer: 0, explanation: { en: "First derivative (f') is 2xe^(x²). Using the product rule for the second derivative (f''), we get d/dx(2x) * e^(x²) + 2x * d/dx(e^(x²)) = 2e^(x²) + 2x * (2xe^(x²)) = (2 + 4x²)e^(x²).", hi: "पहला अवकलज (f') 2xe^(x²) है। दूसरे अवकलज (f'') के लिए गुणन नियम का उपयोग करते हुए, हमें d/dx(2x) * e^(x²) + 2x * d/dx(e^(x²)) = 2e^(x²) + 2x * (2xe^(x²)) = (2 + 4x²)e^(x²) मिलता है।", or: "ପ୍ରଥମ ଡେରିଭେଟିଭ୍ (f') ହେଉଛି 2xe^(x²)। ଦ୍ୱିତୀୟ ଡେରିଭେଟିଭ୍ (f'') ପାଇଁ ଗୁଣନ ନିୟମ ବ୍ୟବହାର କରି, ଆମେ ପାଇବା d/dx(2x) * e^(x²) + 2x * d/dx(e^(x²)) = 2e^(x²) + 2x * (2xe^(x²)) = (2 + 4x²)e^(x²)।" } },
+                { q: { en: "What is the volume of the solid generated by revolving the region bounded by y=√x, y=0, and x=4 about the x-axis?", hi: "y=√x, y=0, और x=4 द्वारा घिरे क्षेत्र को x-अक्ष के परितः घुमाने पर उत्पन्न ठोस का आयतन क्या है?", or: "y=√x, y=0, ଏବଂ x=4 ଦ୍ୱାରା ସୀମାବଦ୍ଧ ଅଞ୍ଚଳକୁ x-ଅକ୍ଷରେ ଘୂରାଇଲେ ସୃଷ୍ଟି ହୋଇଥିବା ଘନର ଆୟତନ କ'ଣ?" }, options: [{ en: "8π", hi: "8π", or: "8π" }, { en: "16π", hi: "16π", or: "16π" }, { en: "4π", hi: "4π", or: "4π" }, { en: "2π", hi: "2π", or: "2π" }], answer: 0, explanation: { en: "Using the disk method, Volume V = π ∫[a,b] (R(x))² dx. Here, R(x) = √x. So, V = π ∫[0,4] (√x)² dx = π ∫[0,4] x dx = π [x²/2] from 0 to 4 = π (4²/2 - 0²/2) = 8π.", hi: "डिस्क विधि का उपयोग करते हुए, आयतन V = π ∫[a,b] (R(x))² dx। यहाँ, R(x) = √x। तो, V = π ∫[0,4] (√x)² dx = π ∫[0,4] x dx = π [x²/2] 0 से 4 तक = π (4²/2 - 0²/2) = 8π।", or: "ଡିସ୍କ ପଦ୍ଧତି ବ୍ୟବହାର କରି, ଆୟତନ V = π ∫[a,b] (R(x))² dx। ଏଠାରେ, R(x) = √x। ତେଣୁ, V = π ∫[0,4] (√x)² dx = π ∫[0,4] x dx = π [x²/2] 0 ରୁ 4 ପର୍ଯ୍ୟନ୍ତ = π (4²/2 - 0²/2) = 8π।" } },
+                { q: { en: "Integrate x * eˣ dx using integration by parts.", hi: "भागों द्वारा समाकलन का उपयोग करके x * eˣ dx का समाकलन करें।", or: "ଭାଗ ଦ୍ୱାରା ଇଣ୍ଟିଗ୍ରେସନ୍ ବ୍ୟବହାର କରି x * eˣ dx କୁ ଇଣ୍ଟିଗ୍ରେଟ୍ କରନ୍ତୁ।" }, options: [{ en: "xeˣ - eˣ + C", hi: "xeˣ - eˣ + C", or: "xeˣ - eˣ + C" }, { en: "xeˣ + C", hi: "xeˣ + C", or: "xeˣ + C" }, { en: "x²eˣ/2 + C", hi: "x²eˣ/2 + C", or: "x²eˣ/2 + C" }, { en: "eˣ + C", hi: "eˣ + C", or: "eˣ + C" }], answer: 0, explanation: { en: "Using ∫udv = uv - ∫vdu, let u=x, dv=eˣdx. Then du=dx, v=eˣ. So, ∫xeˣdx = xeˣ - ∫eˣdx = xeˣ - eˣ + C.", hi: "∫udv = uv - ∫vdu का उपयोग करते हुए, मान लीजिए u=x, dv=eˣdx है। तो du=dx, v=eˣ है। तो, ∫xeˣdx = xeˣ - ∫eˣdx = xeˣ - eˣ + C।", or: "∫udv = uv - ∫vdu ବ୍ୟବହାର କରି, ଧରନ୍ତୁ u=x, dv=eˣdx ଅଟେ। ତା'ପରେ du=dx, v=eˣ ଅଟେ। ତେଣୁ, ∫xeˣdx = xeˣ - ∫eˣdx = xeˣ - eˣ + C।" } },
+                { q: { en: "If the radius of a circle increases at 2 cm/s, what is the rate of change of its area when r=5 cm?", hi: "यदि किसी वृत्त की त्रिज्या 2 सेमी/सेकंड की दर से बढ़ती है, तो r=5 सेमी होने पर उसके क्षेत्रफल में परिवर्तन की दर क्या है?", or: "ଯଦି ଏକ ବୃତ୍ତର ବ୍ୟାସାର୍ଦ୍ଧ 2 ସେମି/ସେକେଣ୍ଡରେ ବଢେ, ତେବେ r=5 ସେମି ହେଲେ ଏହାର କ୍ଷେତ୍ରଫଳର ପରିବର୍ତ୍ତନ ହାର କ'ଣ?" }, options: [{ en: "20π cm²/s", hi: "20π cm²/s", or: "20π cm²/s" }, { en: "10π cm²/s", hi: "10π cm²/s", or: "10π cm²/s" }, { en: "25π cm²/s", hi: "25π cm²/s", or: "25π cm²/s" }, { en: "50π cm²/s", hi: "50π cm²/s", or: "50π cm²/s" }], answer: 0, explanation: { en: "Area A = πr². Differentiating with respect to time t: dA/dt = 2πr * dr/dt. Given dr/dt = 2 and r = 5. So, dA/dt = 2π(5)(2) = 20π.", hi: "क्षेत्रफल A = πr²। समय t के संबंध में अवकलन करने पर: dA/dt = 2πr * dr/dt। दिया गया है dr/dt = 2 और r = 5। तो, dA/dt = 2π(5)(2) = 20π।", or: "କ୍ଷେତ୍ରଫଳ A = πr²। ସମୟ t ସହିତ ଡିଫରେନ୍ସିଏଟ୍ କଲେ: dA/dt = 2πr * dr/dt। ଦିଆଯାଇଛି dr/dt = 2 ଏବଂ r = 5। ତେଣୁ, dA/dt = 2π(5)(2) = 20π।" } },
+                { q: { en: "Evaluate the limit of sin(x)/x as x approaches 0.", hi: "x शून्य के करीब पहुंचने पर sin(x)/x की सीमा का मूल्यांकन करें।", or: "x ଶୂନ ନିକଟବର୍ତ୍ତୀ ହେଲେ sin(x)/x ର ସୀମା ମୂଲ୍ୟାଙ୍କନ କରନ୍ତୁ।" }, options: [{ en: "1", hi: "1", or: "1" }, { en: "0", hi: "0", or: "0" }, { en: "Infinity", hi: "अनंत", or: "ଅସୀମ" }, { en: "Does not exist", hi: "अस्तित्व में नहीं है", or: "ବିଦ୍ୟମାନ ନାହିଁ" }], answer: 0, explanation: { en: "This is a standard limit result. It can also be found using L'Hôpital's Rule. Differentiating the top and bottom gives cos(x)/1. As x->0, cos(0)/1 = 1.", hi: "यह एक मानक सीमा परिणाम है। इसे L'Hôpital's नियम का उपयोग करके भी पाया जा सकता है। ऊपर और नीचे का अवकलन करने पर cos(x)/1 मिलता है। जैसे x->0, cos(0)/1 = 1।", or: "ଏହା ଏକ ମାନକ ସୀମା ଫଳାଫଳ। ଏହାକୁ L'Hôpital's ନିୟମ ବ୍ୟବହାର କରି ମଧ୍ୟ ପାଇପାରିବେ। ଉପର ଏବଂ ତଳକୁ ଡିଫରେନ୍ସିଏଟ୍ କଲେ cos(x)/1 ମିଳେ। ଯେପରି x->0, cos(0)/1 = 1।" } },
+                { q: { en: "Find the area of the region enclosed by the curves y=x² and y=x.", hi: "वक्रों y=x² और y=x द्वारा घिरे क्षेत्र का क्षेत्रफल ज्ञात कीजिए।", or: "ବକ୍ର y=x² ଏବଂ y=x ଦ୍ୱାରା ଆବଦ୍ଧ ଅଞ୍ଚଳର କ୍ଷେତ୍ରଫଳ ଖୋଜ।" }, options: [{ en: "1/6", hi: "1/6", or: "1/6" }, { en: "1/3", hi: "1/3", or: "1/3" }, { en: "1/2", hi: "1/2", or: "1/2" }, { en: "1", hi: "1", or: "1" }], answer: 0, explanation: { en: "The curves intersect at x=0 and x=1. The area is the integral of (upper curve - lower curve) from 0 to 1. Area = ∫(x - x²)dx from 0 to 1 = [x²/2 - x³/3] from 0 to 1 = (1/2 - 1/3) - 0 = 1/6.", hi: "वक्र x=0 और x=1 पर प्रतिच्छेद करते हैं। क्षेत्रफल 0 से 1 तक (ऊपरी वक्र - निचला वक्र) का समाकलन है। क्षेत्रफल = ∫(x - x²)dx 0 से 1 तक = [x²/2 - x³/3] 0 से 1 तक = (1/2 - 1/3) - 0 = 1/6।", or: "ବକ୍ରଗୁଡିକ x=0 ଏବଂ x=1 ରେ ଛେଦ କରନ୍ତି। କ୍ଷେତ୍ରଫଳ 0 ରୁ 1 ପର୍ଯ୍ୟନ୍ତ (ଉପର ବକ୍ର - ତଳ ବକ୍ର) ର ଇଣ୍ଟିଗ୍ରାଲ୍ ଅଟେ। କ୍ଷେତ୍ରଫଳ = ∫(x - x²)dx 0 ରୁ 1 ପର୍ଯ୍ୟନ୍ତ = [x²/2 - x³/3] 0 ରୁ 1 ପର୍ଯ୍ୟନ୍ତ = (1/2 - 1/3) - 0 = 1/6।" } },
+                { q: { en: "Integrate ln(x) dx.", hi: "ln(x) dx का समाकलन करें।", or: "ln(x) dx କୁ ଇଣ୍ଟିଗ୍ରେଟ୍ କରନ୍ତୁ।" }, options: [{ en: "x*ln(x) - x + C", hi: "x*ln(x) - x + C", or: "x*ln(x) - x + C" }, { en: "1/x + C", hi: "1/x + C", or: "1/x + C" }, { en: "x*ln(x) + C", hi: "x*ln(x) + C", or: "x*ln(x) + C" }, { en: "ln(x) + C", hi: "ln(x) + C", or: "ln(x) + C" }], answer: 0, explanation: { en: "Use integration by parts: ∫udv = uv - ∫vdu. Let u=ln(x), dv=dx. Then du=(1/x)dx, v=x. So, ∫ln(x)dx = x*ln(x) - ∫x*(1/x)dx = x*ln(x) - ∫1dx = x*ln(x) - x + C.", hi: "भागों द्वारा समाकलन का उपयोग करें: ∫udv = uv - ∫vdu। मान लीजिए u=ln(x), dv=dx है। तो du=(1/x)dx, v=x है। तो, ∫ln(x)dx = x*ln(x) - ∫x*(1/x)dx = x*ln(x) - ∫1dx = x*ln(x) - x + C।", or: "ଭାଗ ଦ୍ୱାରା ଇଣ୍ଟିଗ୍ରେସନ୍ ବ୍ୟବହାର କରନ୍ତୁ: ∫udv = uv - ∫vdu। ଧରନ୍ତୁ u=ln(x), dv=dx ଅଟେ। ତା'ପରେ du=(1/x)dx, v=x ଅଟେ। ତେଣୁ, ∫ln(x)dx = x*ln(x) - ∫x*(1/x)dx = x*ln(x) - ∫1dx = x*ln(x) - x + C।" } },
+                { q: { en: "Find the local maximum value of f(x) = x³ - 3x + 1.", hi: "f(x) = x³ - 3x + 1 का स्थानीय अधिकतम मान ज्ञात कीजिए।", or: "f(x) = x³ - 3x + 1 ର ସ୍ଥାନୀୟ ସର୍ବାଧିକ ମୂଲ୍ୟ ଖୋଜ।" }, options: [{ en: "3", hi: "3", or: "3" }, { en: "-1", hi: "-1", or: "-1" }, { en: "1", hi: "1", or: "1" }, { en: "0", hi: "0", or: "0" }], answer: 0, explanation: { en: "f'(x) = 3x² - 3. Set f'(x)=0 to find critical points: x=1, x=-1. f''(x) = 6x. f''(-1) = -6 < 0, so there is a local max at x=-1. The value is f(-1) = (-1)³ - 3(-1) + 1 = -1 + 3 + 1 = 3.", hi: "f'(x) = 3x² - 3। क्रांतिक बिंदु खोजने के लिए f'(x)=0 सेट करें: x=1, x=-1। f''(x) = 6x। f''(-1) = -6 < 0, इसलिए x=-1 पर एक स्थानीय अधिकतम है। मान f(-1) = (-1)³ - 3(-1) + 1 = -1 + 3 + 1 = 3 है।", or: "f'(x) = 3x² - 3। ଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ ବିନ୍ଦୁ ଖୋଜିବା ପାଇଁ f'(x)=0 ସେଟ୍ କରନ୍ତୁ: x=1, x=-1। f''(x) = 6x। f''(-1) = -6 < 0, ତେଣୁ x=-1 ରେ ଏକ ସ୍ଥାନୀୟ ସର୍ବାଧିକ ଅଛି। ମୂଲ୍ୟ f(-1) = (-1)³ - 3(-1) + 1 = -1 + 3 + 1 = 3 ଅଟେ।" } }
+            ]
+        },
+        probability: {
+            easy: [
+                { q: { en: "What is the probability of rolling a 3 on a standard six-sided die?", hi: "एक मानक छह-पक्षीय पासे पर 3 आने की प्रायिकता क्या है?", or: "ଏକ ମାନକ ଛଅ-ପାଖିଆ ଡାଇସରେ 3 ଆସିବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "1/6", hi: "1/6", or: "1/6" }, { en: "1/3", hi: "1/3", or: "1/3" }, { en: "1/2", hi: "1/2", or: "1/2" }, { en: "3/6", hi: "3/6", or: "3/6" }], answer: 0, explanation: { en: "A standard die has 6 faces (1, 2, 3, 4, 5, 6). There is only one face with a '3'. So, the probability is (Number of favorable outcomes) / (Total number of outcomes) = 1/6.", hi: "एक मानक पासे के 6 फलक होते हैं (1, 2, 3, 4, 5, 6)। '3' वाला केवल एक फलक है। इसलिए, प्रायिकता = (अनुकूल परिणामों की संख्या) / (कुल परिणामों की संख्या) = 1/6।", or: "ଏକ ମାନକ ଡାଇସର 6ଟି ମୁଖ ଅଛି (1, 2, 3, 4, 5, 6)। '3' ଥିବା କେବଳ ଗୋଟିଏ ମୁଖ ଅଛି। ତେଣୁ, ସମ୍ଭାବନା = (ଅନୁକୂଳ ଫଳାଫଳ ସଂଖ୍ୟା) / (ମୋଟ ଫଳାଫଳ ସଂଖ୍ୟା) = 1/6।" } },
+                { q: { en: "If a coin is tossed, what is the probability of getting a head?", hi: "यदि एक सिक्का उछाला जाता है, तो शीर्ष आने की प्रायिकता क्या है?", or: "ଯଦି ଏକ ମୁଦ୍ରା ଟସ୍ କରାଯାଏ, ତେବେ ହେଡ୍ ଆସିବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "1/2", hi: "1/2", or: "1/2" }, { en: "1", hi: "1", or: "1" }, { en: "0", hi: "0", or: "0" }, { en: "1/4", hi: "1/4", or: "1/4" }], answer: 0, explanation: { en: "A coin has two sides: heads and tails. There is one favorable outcome (heads) out of two total possible outcomes. Probability = 1/2.", hi: "एक सिक्के के दो पहलू होते हैं: शीर्ष और पुच्छ। दो कुल संभावित परिणामों में से एक अनुकूल परिणाम (शीर्ष) है। प्रायिकता = 1/2।", or: "ଏକ ମୁଦ୍ରାର ଦୁଇଟି ପାର୍ଶ୍ୱ ଅଛି: ହେଡ୍ ଏବଂ ଟେଲ୍। ଦୁଇଟି ସମ୍ଭାବ୍ୟ ଫଳାଫଳ ମଧ୍ୟରୁ ଗୋଟିଏ ଅନୁକୂଳ ଫଳାଫଳ (ହେଡ୍) ଅଛି। ସମ୍ଭାବନା = 1/2।" } },
+                { q: { en: "What's the probability of drawing an Ace from a deck of 52 cards?", hi: "52 पत्तों की गड्डी से एक इक्का निकालने की प्रायिकता क्या है?", or: "52ଟି କାର୍ଡର ଡେକରୁ ଏକ ଏସ୍ ବାହାର କରିବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "1/13", hi: "1/13", or: "1/13" }, { en: "1/52", hi: "1/52", or: "1/52" }, { en: "4/13", hi: "4/13", or: "4/13" }, { en: "1/4", hi: "1/4", or: "1/4" }], answer: 0, explanation: { en: "There are 4 Aces in a 52-card deck. So the probability is 4/52, which simplifies to 1/13.", hi: "52 पत्तों की गड्डी में 4 इक्के होते हैं। इसलिए प्रायिकता 4/52 है, जो 1/13 तक सरल हो जाती है।", or: "52-କାର୍ଡ ଡେକରେ 4ଟି ଏସ୍ ଅଛି। ତେଣୁ ସମ୍ଭାବନା 4/52 ଅଟେ, ଯାହା 1/13 କୁ ସରଳ କରେ।" } },
+                { q: { en: "When two coins are tossed, what is the probability of getting two heads?", hi: "जब दो सिक्के उछाले जाते हैं, तो दो शीर्ष आने की प्रायिकता क्या है?", or: "ଯେତେବେଳେ ଦୁଇଟି ମୁଦ୍ରା ଟସ୍ କରାଯାଏ, ଦୁଇଟି ହେଡ୍ ପାଇବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "1/4", hi: "1/4", or: "1/4" }, { en: "1/2", hi: "1/2", or: "1/2" }, { en: "1/3", hi: "1/3", or: "1/3" }, { en: "1", hi: "1", or: "1" }], answer: 0, explanation: { en: "The possible outcomes are (HH, HT, TH, TT). There is one favorable outcome (HH) out of four total outcomes. Probability = 1/4.", hi: "संभावित परिणाम (HH, HT, TH, TT) हैं। चार कुल परिणामों में से एक अनुकूल परिणाम (HH) है। प्रायिकता = 1/4।", or: "ସମ୍ଭାବ୍ୟ ଫଳାଫଳଗୁଡିକ (HH, HT, TH, TT) ଅଟେ। ଚାରୋଟି ମୋଟ ଫଳାଫଳ ମଧ୍ୟରୁ ଗୋଟିଏ ଅନୁକୂଳ ଫଳାଫଳ (HH) ଅଛି। ସମ୍ଭାବନା = 1/4।" } },
+                { q: { en: "A bag has 4 red and 6 blue balls. What is the probability of picking a blue ball?", hi: "एक थैले में 4 लाल और 6 नीली गेंदें हैं। एक नीली गेंद निकालने की प्रायिकता क्या है?", or: "ଏକ ବ୍ୟାଗରେ 4ଟି ଲାଲ୍ ଏବଂ 6ଟି ନୀଳ ବଲ୍ ଅଛି। ଏକ ନୀଳ ବଲ୍ ବାଛିବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "3/5", hi: "3/5", or: "3/5" }, { en: "2/5", hi: "2/5", or: "2/5" }, { en: "6/4", hi: "6/4", or: "6/4" }, { en: "1/10", hi: "1/10", or: "1/10" }], answer: 0, explanation: { en: "There are 6 blue balls and a total of 4+6=10 balls. The probability is 6/10, which simplifies to 3/5.", hi: "6 नीली गेंदें हैं और कुल 4+6=10 गेंदें हैं। प्रायिकता 6/10 है, जो 3/5 तक सरल हो जाती है।", or: "6ଟି ନୀଳ ବଲ୍ ଏବଂ ମୋଟ 4+6=10ଟି ବଲ୍ ଅଛି। ସମ୍ଭାବନା 6/10 ଅଟେ, ଯାହା 3/5 କୁ ସରଳ କରେ।" } },
+                { q: { en: "When rolling a die, what is the probability of getting an even number?", hi: "एक पासा फेंकने पर, एक सम संख्या प्राप्त करने की प्रायिकता क्या है?", or: "ଏକ ଡାଇସ୍ ଗଡ଼ାଇବାବେଳେ, ଏକ ସମାନ ସଂଖ୍ୟା ପାଇବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "1/2", hi: "1/2", or: "1/2" }, { en: "1/3", hi: "1/3", or: "1/3" }, { en: "1/6", hi: "1/6", or: "1/6" }, { en: "2/3", hi: "2/3", or: "2/3" }], answer: 0, explanation: { en: "The even numbers on a die are 2, 4, 6. There are 3 favorable outcomes out of 6 total outcomes. Probability = 3/6 = 1/2.", hi: "एक पासे पर सम संख्याएँ 2, 4, 6 हैं। 6 कुल परिणामों में से 3 अनुकूल परिणाम हैं। प्रायिकता = 3/6 = 1/2।", or: "ଏକ ଡାଇସରେ ସମାନ ସଂଖ୍ୟାଗୁଡିକ 2, 4, 6 ଅଟେ। 6ଟି ମୋଟ ଫଳାଫଳ ମଧ୍ୟରୁ 3ଟି ଅନୁକୂଳ ଫଳାଫଳ ଅଛି। ସମ୍ଭାବନା = 3/6 = 1/2।" } },
+                { q: { en: "What's the probability of picking a vowel from the letters in 'PROBABILITY'?", hi: "'PROBABILITY' के अक्षरों में से एक स्वर चुनने की प्रायिकता क्या है?", or: "'PROBABILITY' ର ଅକ୍ଷରଗୁଡିକରୁ ଏକ ସ୍ୱରବର୍ଣ୍ଣ ବାଛିବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "4/11", hi: "4/11", or: "4/11" }, { en: "3/11", hi: "3/11", or: "3/11" }, { en: "5/11", hi: "5/11", or: "5/11" }, { en: "1/11", hi: "1/11", or: "1/11" }], answer: 0, explanation: { en: "The word has 11 letters. The vowels are O, A, I, I. There are 4 vowels. Probability = 4/11.", hi: "शब्द में 11 अक्षर हैं। स्वर O, A, I, I हैं। 4 स्वर हैं। प्रायिकता = 4/11।", or: "ଶବ୍ଦରେ 11ଟି ଅକ୍ଷର ଅଛି। ସ୍ୱରବର୍ଣ୍ଣଗୁଡିକ O, A, I, I ଅଟେ। 4ଟି ସ୍ୱରବର୍ଣ୍ଣ ଅଛି। ସମ୍ଭାବନା = 4/11।" } },
+                { q: { en: "If a coin is tossed 3 times, what's the probability of getting all tails?", hi: "यदि एक सिक्का 3 बार उछाला जाता है, तो सभी पुच्छ आने की प्रायिकता क्या है?", or: "ଯଦି ଏକ ମୁଦ୍ରା 3 ଥର ଟସ୍ କରାଯାଏ, ସବୁ ଟେଲ୍ ପାଇବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "1/8", hi: "1/8", or: "1/8" }, { en: "1/2", hi: "1/2", or: "1/2" }, { en: "1/4", hi: "1/4", or: "1/4" }, { en: "3/8", hi: "3/8", or: "3/8" }], answer: 0, explanation: { en: "Each toss is an independent event with probability 1/2. The total probability is (1/2) * (1/2) * (1/2) = 1/8. The only favorable outcome is (TTT).", hi: "प्रत्येक उछाल 1/2 प्रायिकता के साथ एक स्वतंत्र घटना है। कुल प्रायिकता (1/2) * (1/2) * (1/2) = 1/8 है। एकमात्र अनुकूल परिणाम (TTT) है।", or: "ପ୍ରତ୍ୟେକ ଟସ୍ 1/2 ସମ୍ଭାବନା ସହିତ ଏକ ସ୍ୱାଧୀନ ଘଟଣା। ମୋଟ ସମ୍ଭାବନା (1/2) * (1/2) * (1/2) = 1/8 ଅଟେ। ଏକମାତ୍ର ଅନୁକୂଳ ଫଳାଫଳ (TTT) ଅଟେ।" } }
+            ],
+            medium: [
+                 { q: { en: "Two dice are rolled. What is the probability that the sum is 7?", hi: "दो पासे फेंके जाते हैं। योग 7 आने की प्रायिकता क्या है?", or: "ଦୁଇଟି ଡାଇସ୍ ଗଡ଼ାଯାଏ। ଯୋଗଫଳ 7 ହେବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "1/6", hi: "1/6", or: "1/6" }, { en: "1/36", hi: "1/36", or: "1/36" }, { en: "7/36", hi: "7/36", or: "7/36" }, { en: "1/12", hi: "1/12", or: "1/12" }], answer: 0, explanation: { en: "Total outcomes are 6x6=36. Favorable outcomes for a sum of 7 are (1,6), (2,5), (3,4), (4,3), (5,2), (6,1). There are 6 favorable outcomes. Probability = 6/36 = 1/6.", hi: "कुल परिणाम 6x6=36 हैं। 7 के योग के लिए अनुकूल परिणाम (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) हैं। 6 अनुकूल परिणाम हैं। प्रायिकता = 6/36 = 1/6।", or: "ମୋଟ ଫଳାଫଳ 6x6=36 ଅଟେ। 7 ର ଯୋଗଫଳ ପାଇଁ ଅନୁକୂଳ ଫଳାଫଳ ହେଉଛି (1,6), (2,5), (3,4), (4,3), (5,2), (6,1)। 6ଟି ଅନୁକୂଳ ଫଳାଫଳ ଅଛି। ସମ୍ଭାବନା = 6/36 = 1/6।" } },
+                 { q: { en: "A bag contains 3 red and 5 blue balls. What is the probability of drawing a red ball?", hi: "एक थैले में 3 लाल और 5 नीली गेंदें हैं। एक लाल गेंद निकालने की प्रायिकता क्या है?", or: "ଏକ ବ୍ୟାଗରେ 3ଟି ଲାଲ୍ ଏବଂ 5ଟି ନୀଳ ବଲ୍ ଅଛି। ଏକ ଲାଲ୍ ବଲ୍ ବାହାର କରିବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "3/8", hi: "3/8", or: "3/8" }, { en: "3/5", hi: "3/5", or: "3/5" }, { en: "5/8", hi: "5/8", or: "5/8" }, { en: "1/8", hi: "1/8", or: "1/8" }], answer: 0, explanation: { en: "Total balls = 3 (red) + 5 (blue) = 8. Number of red balls = 3. Probability = (Number of red balls) / (Total balls) = 3/8.", hi: "कुल गेंदें = 3 (लाल) + 5 (नीली) = 8। लाल गेंदों की संख्या = 3। प्रायिकता = (लाल गेंदों की संख्या) / (कुल गेंदें) = 3/8।", or: "ମୋଟ ବଲ୍ = 3 (ଲାଲ୍) + 5 (ନୀଳ) = 8। ଲାଲ୍ ବଲ୍ ସଂଖ୍ୟା = 3। ସମ୍ଭାବନା = (ଲାଲ୍ ବଲ୍ ସଂଖ୍ୟା) / (ମୋଟ ବଲ୍) = 3/8।" } },
+                 { q: { en: "From a deck of 52 cards, what's the probability of drawing a King or a red card?", hi: "52 पत्तों की गड्डी से, एक राजा या एक लाल पत्ता निकालने की प्रायिकता क्या है?", or: "52ଟି କାର୍ଡର ଡେକରୁ, ଏକ ରାଜା କିମ୍ବା ଏକ ଲାଲ୍ କାର୍ଡ ଟାଣିବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "7/13", hi: "7/13", or: "7/13" }, { en: "1/2", hi: "1/2", or: "1/2" }, { en: "28/52", hi: "28/52", or: "28/52" }, { en: "30/52", hi: "30/52", or: "30/52" }], answer: 0, explanation: { en: "P(King or Red) = P(King) + P(Red) - P(Red King). P(K)=4/52, P(R)=26/52, P(Red King)=2/52. So, (4+26-2)/52 = 28/52 = 7/13.", hi: "P(राजा या लाल) = P(राजा) + P(लाल) - P(लाल राजा)। P(K)=4/52, P(R)=26/52, P(लाल राजा)=2/52। तो, (4+26-2)/52 = 28/52 = 7/13।", or: "P(ରାଜା କିମ୍ବା ଲାଲ୍) = P(ରାଜା) + P(ଲାଲ୍) - P(ଲାଲ୍ ରାଜା)। P(K)=4/52, P(R)=26/52, P(ଲାଲ୍ ରାଜା)=2/52। ତେଣୁ, (4+26-2)/52 = 28/52 = 7/13।" } },
+                 { q: { en: "Two cards are drawn without replacement. What is the probability of getting two Kings?", hi: "बिना प्रतिस्थापन के दो पत्ते निकाले जाते हैं। दो राजा प्राप्त करने की प्रायिकता क्या है?", or: "ବଦଳ ନକରି ଦୁଇଟି କାର୍ଡ ଟଣାଯାଏ। ଦୁଇଟି ରାଜା ପାଇବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "1/221", hi: "1/221", or: "1/221" }, { en: "1/169", hi: "1/169", or: "1/169" }, { en: "4/52", hi: "4/52", or: "4/52" }, { en: "12/2704", hi: "12/2704", or: "12/2704" }], answer: 0, explanation: { en: "P(1st is King) = 4/52. P(2nd is King | 1st was King) = 3/51. Total P = (4/52) * (3/51) = 12/2652 = 1/221.", hi: "P(पहला राजा है) = 4/52। P(दूसरा राजा है | पहला राजा था) = 3/51। कुल P = (4/52) * (3/51) = 12/2652 = 1/221।", or: "P(ପ୍ରଥମ ରାଜା) = 4/52। P(ଦ୍ୱିତୀୟ ରାଜା | ପ୍ରଥମ ରାଜା ଥିଲା) = 3/51। ମୋଟ P = (4/52) * (3/51) = 12/2652 = 1/221।" } },
+                 { q: { en: "In how many ways can 5 distinct books be arranged on a shelf?", hi: "5 अलग-अलग पुस्तकों को एक शेल्फ पर कितने तरीकों से व्यवस्थित किया जा सकता है?", or: "5ଟି ଭିନ୍ନ ଭିନ୍ନ ବହିକୁ ଏକ ସେଲ୍ଫରେ କେତେ ପ୍ରକାରରେ ସଜାଯାଇପାରିବ?" }, options: [{ en: "120", hi: "120", or: "120" }, { en: "25", hi: "25", or: "25" }, { en: "5", hi: "5", or: "5" }, { en: "60", hi: "60", or: "60" }], answer: 0, explanation: { en: "This is a permutation of 5 items, which is 5! (5 factorial). 5! = 5 * 4 * 3 * 2 * 1 = 120.", hi: "यह 5 वस्तुओं का एक क्रमचय है, जो 5! (5 फैक्टोरियल) है। 5! = 5 * 4 * 3 * 2 * 1 = 120।", or: "ଏହା 5ଟି ଆଇଟମର ଏକ କ୍ରମପରିବର୍ତ୍ତନ, ଯାହା 5! (5 ଫ୍ୟାକ୍ଟୋରିଆଲ୍) ଅଟେ। 5! = 5 * 4 * 3 * 2 * 1 = 120।" } },
+                 { q: { en: "A committee of 3 is chosen from 5 people. How many combinations are possible?", hi: "5 लोगों में से 3 की एक समिति चुनी जाती है। कितने संयोजन संभव हैं?", or: "5 ଜଣଙ୍କ ମଧ୍ୟରୁ 3 ଜଣଙ୍କର ଏକ କମିଟି ବଛାଯାଏ। କେତେ ସମ୍ମିଶ୍ରଣ ସମ୍ଭବ?" }, options: [{ en: "10", hi: "10", or: "10" }, { en: "60", hi: "60", or: "60" }, { en: "15", hi: "15", or: "15" }, { en: "120", hi: "120", or: "120" }], answer: 0, explanation: { en: "This is a combination problem: C(n, k) = n! / (k!(n-k)!). C(5, 3) = 5! / (3! * 2!) = (120) / (6 * 2) = 10.", hi: "यह एक संयोजन समस्या है: C(n, k) = n! / (k!(n-k)!)। C(5, 3) = 5! / (3! * 2!) = (120) / (6 * 2) = 10।", or: "ଏହା ଏକ ସମ୍ମିଶ୍ରଣ ସମସ୍ୟା: C(n, k) = n! / (k!(n-k)!)। C(5, 3) = 5! / (3! * 2!) = (120) / (6 * 2) = 10।" } },
+                 { q: { en: "If P(A) = 0.5, P(B) = 0.3, and P(A and B) = 0.1, find P(A or B).", hi: "यदि P(A) = 0.5, P(B) = 0.3, और P(A और B) = 0.1, तो P(A या B) ज्ञात कीजिए।", or: "ଯଦି P(A) = 0.5, P(B) = 0.3, ଏବଂ P(A ଏବଂ B) = 0.1, ତେବେ P(A କିମ୍ବା B) ଖୋଜ।" }, options: [{ en: "0.7", hi: "0.7", or: "0.7" }, { en: "0.8", hi: "0.8", or: "0.8" }, { en: "0.9", hi: "0.9", or: "0.9" }, { en: "0.15", hi: "0.15", or: "0.15" }], answer: 0, explanation: { en: "Using the addition rule for probability: P(A or B) = P(A) + P(B) - P(A and B) = 0.5 + 0.3 - 0.1 = 0.7.", hi: "प्रायिकता के लिए जोड़ नियम का उपयोग करते हुए: P(A या B) = P(A) + P(B) - P(A और B) = 0.5 + 0.3 - 0.1 = 0.7।", or: "ସମ୍ଭାବନା ପାଇଁ ଯୋଗ ନିୟମ ବ୍ୟବହାର କରି: P(A କିମ୍ବା B) = P(A) + P(B) - P(A ଏବଂ B) = 0.5 + 0.3 - 0.1 = 0.7।" } },
+                 { q: { en: "Two dice are rolled. What is the probability the sum is greater than 9?", hi: "दो पासे फेंके जाते हैं। योग 9 से अधिक होने की प्रायिकता क्या है?", or: "ଦୁଇଟି ଡାଇସ୍ ଗଡ଼ାଯାଏ। ଯୋଗଫଳ 9 ରୁ ଅଧିକ ହେବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "1/6", hi: "1/6", or: "1/6" }, { en: "5/36", hi: "5/36", or: "5/36" }, { en: "1/9", hi: "1/9", or: "1/9" }, { en: "7/36", hi: "7/36", or: "7/36" }], answer: 0, explanation: { en: "Favorable sums are 10, 11, 12. Outcomes: (4,6), (5,5), (6,4) for 10; (5,6), (6,5) for 11; (6,6) for 12. That's 6 favorable outcomes out of 36. Probability = 6/36 = 1/6.", hi: "अनुकूल योग 10, 11, 12 हैं। परिणाम: 10 के लिए (4,6), (5,5), (6,4); 11 के लिए (5,6), (6,5); 12 के लिए (6,6)। यह 36 में से 6 अनुकूल परिणाम हैं। प्रायिकता = 6/36 = 1/6।", or: "ଅନୁକୂଳ ଯୋଗଫଳ 10, 11, 12 ଅଟେ। ଫଳାଫଳ: 10 ପାଇଁ (4,6), (5,5), (6,4); 11 ପାଇଁ (5,6), (6,5); 12 ପାଇଁ (6,6)। ଏହା 36 ରୁ 6ଟି ଅନୁକୂଳ ଫଳାଫଳ। ସମ୍ଭାବନା = 6/36 = 1/6।" } }
+            ],
+            hard: [
+                { q: { en: "A card is drawn from a deck of 52 cards. What is the probability that it is a King or a Heart?", hi: "52 पत्तों की एक गड्डी से एक पत्ता निकाला जाता है। इसके राजा या पान का पत्ता होने की प्रायिकता क्या है?", or: "52ଟି କାର୍ଡର ଏକ ଡେକରୁ ଏକ କାର୍ଡ ଟଣାଯାଏ। ଏହା ଏକ ରାଜା କିମ୍ବା ହାର୍ଟ ହେବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "4/13", hi: "4/13", or: "4/13" }, { en: "17/52", hi: "17/52", or: "17/52" }, { en: "1/13", hi: "1/13", or: "1/13" }, { en: "16/52", hi: "16/52", or: "16/52" }], answer: 0, explanation: { en: "P(King or Heart) = P(King) + P(Heart) - P(King and Heart). P(King) = 4/52. P(Heart) = 13/52. There is one King of Hearts, so P(King and Heart) = 1/52. So, (4/52) + (13/52) - (1/52) = 16/52 = 4/13.", hi: "P(राजा या पान) = P(राजा) + P(पान) - P(राजा और पान)। P(राजा) = 4/52। P(पान) = 13/52। पान का एक राजा है, इसलिए P(राजा और पान) = 1/52। तो, (4/52) + (13/52) - (1/52) = 16/52 = 4/13।", or: "P(ରାଜା କିମ୍ବା ହାର୍ଟ) = P(ରାଜା) + P(ହାର୍ଟ) - P(ରାଜା ଏବଂ ହାର୍ଟ)। P(ରାଜା) = 4/52। P(ହାର୍ଟ) = 13/52। ଗୋଟିଏ ହାର୍ଟର ରାଜା ଅଛି, ତେଣୁ P(ରାଜା ଏବଂ ହାର୍ଟ) = 1/52। ତେଣୁ, (4/52) + (13/52) - (1/52) = 16/52 = 4/13।" } },
+                { q: { en: "Urn A has 2 white and 3 black balls. Urn B has 4 white and 1 black ball. A ball is drawn from Urn A and put into Urn B, then a ball is drawn from Urn B. What is the probability it is white?", hi: "कलश A में 2 सफेद और 3 काली गेंदें हैं। कलश B में 4 सफेद और 1 काली गेंद है। कलश A से एक गेंद निकालकर कलश B में डाली जाती है, फिर कलश B से एक गेंद निकाली जाती है। इसके सफेद होने की प्रायिकता क्या है?", or: "ପାତ୍ର Aରେ 2ଟି ଧଳା ଏବଂ 3ଟି କଳା ବଲ୍ ଅଛି। ପାତ୍ର Bରେ 4ଟି ଧଳା ଏବଂ 1ଟି କଳା ବଲ୍ ଅଛି। ପାତ୍ର Aରୁ ଏକ ବଲ୍ ଟାଣି ପାତ୍ର Bରେ ରଖାଯାଏ, ତା'ପରେ ପାତ୍ର Bରୁ ଏକ ବଲ୍ ଟଣାଯାଏ। ଏହା ଧଳା ହେବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "11/15", hi: "11/15", or: "11/15" }, { en: "23/30", hi: "23/30", or: "23/30" }, { en: "1/2", hi: "1/2", or: "1/2" }, { en: "4/5", hi: "4/5", or: "4/5" }], answer: 0, explanation: { en: "Let W_A be drawing white from A, B_A be drawing black from A. P(W_A)=2/5, P(B_A)=3/5. If W_A, Urn B is (5W, 1B), so P(W_B|W_A)=5/6. If B_A, Urn B is (4W, 2B), so P(W_B|B_A)=4/6. Total P = P(W_A)P(W_B|W_A) + P(B_A)P(W_B|B_A) = (2/5)(5/6) + (3/5)(4/6) = 10/30 + 12/30 = 22/30 = 11/15.", hi: "मान लीजिए W_A A से सफेद निकालना है, B_A A से काला निकालना है। P(W_A)=2/5, P(B_A)=3/5। यदि W_A, तो कलश B (5W, 1B) है, इसलिए P(W_B|W_A)=5/6। यदि B_A, तो कलश B (4W, 2B) है, इसलिए P(W_B|B_A)=4/6। कुल P = P(W_A)P(W_B|W_A) + P(B_A)P(W_B|B_A) = (2/5)(5/6) + (3/5)(4/6) = 10/30 + 12/30 = 22/30 = 11/15।", or: "ଧରନ୍ତୁ W_A A ରୁ ଧଳା ବାହାର କରିବା, B_A A ରୁ କଳା ବାହାର କରିବା। P(W_A)=2/5, P(B_A)=3/5। ଯଦି W_A, ପାତ୍ର B ହେଉଛି (5W, 1B), ତେଣୁ P(W_B|W_A)=5/6। ଯଦି B_A, ପାତ୍ର B ହେଉଛି (4W, 2B), ତେଣୁ P(W_B|B_A)=4/6। ମୋଟ P = P(W_A)P(W_B|W_A) + P(B_A)P(W_B|B_A) = (2/5)(5/6) + (3/5)(4/6) = 10/30 + 12/30 = 22/30 = 11/15।" } },
+                { q: { en: "How many distinct arrangements of the letters in 'MISSISSIPPI' exist?", hi: "'MISSISSIPPI' के अक्षरों की कितनी अलग-अलग व्यवस्थाएँ मौजूद हैं?", or: "'MISSISSIPPI' ର ଅକ୍ଷରଗୁଡିକର କେତେ ଭିନ୍ନ ଭିନ୍ନ ସଜ୍ଜୀକରଣ ଅଛି?" }, options: [{ en: "34,650", hi: "34,650", or: "34,650" }, { en: "39,916,800", hi: "39,916,800", or: "39,916,800" }, { en: "11!", hi: "11!", or: "11!" }, { en: "1,650", hi: "1,650", or: "1,650" }], answer: 0, explanation: { en: "Total letters = 11. Repeated letters: I (4 times), S (4 times), P (2 times). The number of arrangements is 11! / (4! * 4! * 2!) = 39916800 / (24 * 24 * 2) = 34,650.", hi: "कुल अक्षर = 11। दोहराए गए अक्षर: I (4 बार), S (4 बार), P (2 बार)। व्यवस्थाओं की संख्या 11! / (4! * 4! * 2!) = 39916800 / (24 * 24 * 2) = 34,650 है।", or: "ମୋଟ ଅକ୍ଷର = 11। ପୁନରାବୃତ୍ତ ଅକ୍ଷର: I (4 ଥର), S (4 ଥର), P (2 ଥର)। ସଜ୍ଜୀକରଣ ସଂଖ୍ୟା 11! / (4! * 4! * 2!) = 39916800 / (24 * 24 * 2) = 34,650 ଅଟେ।" } },
+                { q: { en: "A family has 3 children. What is the probability of having exactly one boy, given at least one child is a boy?", hi: "एक परिवार में 3 बच्चे हैं। ठीक एक लड़का होने की प्रायिकता क्या है, यह देखते हुए कि कम से कम एक बच्चा लड़का है?", or: "ଏକ ପରିବାରରେ 3ଟି ସନ୍ତାନ ଅଛନ୍ତି। ଠିକ୍ ଗୋଟିଏ ପୁଅ ହେବାର ସମ୍ଭାବନା କ'ଣ, ଯେତେବେଳେ ଅତିକମରେ ଗୋଟିଏ ସନ୍ତାନ ପୁଅ?" }, options: [{ en: "3/7", hi: "3/7", or: "3/7" }, { en: "1/2", hi: "1/2", or: "1/2" }, { en: "3/8", hi: "3/8", or: "3/8" }, { en: "1/3", hi: "1/3", or: "1/3" }], answer: 0, explanation: { en: "Total outcomes = 8. Outcome with all girls is (GGG). So 7 outcomes have at least one boy. Outcomes with exactly one boy are (BGG, GBG, GGB), which is 3 outcomes. So P = 3/7.", hi: "कुल परिणाम = 8। सभी लड़कियों वाला परिणाम (GGG) है। तो 7 परिणामों में कम से कम एक लड़का है। ठीक एक लड़के वाले परिणाम (BGG, GBG, GGB) हैं, जो 3 परिणाम हैं। तो P = 3/7।", or: "ମୋଟ ଫଳାଫଳ = 8। ସବୁ ଝିଅ ଥିବା ଫଳାଫଳ (GGG) ଅଟେ। ତେଣୁ 7ଟି ଫଳାଫଳରେ ଅତିକମରେ ଗୋଟିଏ ପୁଅ ଅଛି। ଠିକ୍ ଗୋଟିଏ ପୁଅ ଥିବା ଫଳାଫଳ (BGG, GBG, GGB) ଅଟେ, ଯାହା 3ଟି ଫଳାଫଳ। ତେଣୁ P = 3/7।" } },
+                { q: { en: "3 balls are drawn from an urn with 5 red and 7 white balls. What is the probability of drawing exactly 2 red balls?", hi: "5 लाल और 7 सफेद गेंदों वाले एक कलश से 3 गेंदें निकाली जाती हैं। ठीक 2 लाल गेंदें निकालने की प्रायिकता क्या है?", or: "5ଟି ଲାଲ୍ ଏବଂ 7ଟି ଧଳା ବଲ୍ ଥିବା ଏକ ପାତ୍ରରୁ 3ଟି ବଲ୍ ଟଣାଯାଏ। ଠିକ୍ 2ଟି ଲାଲ୍ ବଲ୍ ଟାଣିବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "7/22", hi: "7/22", or: "7/22" }, { en: "10/144", hi: "10/144", or: "10/144" }, { en: "35/220", hi: "35/220", or: "35/220" }, { en: "1/22", hi: "1/22", or: "1/22" }], answer: 0, explanation: { en: "Favorable outcomes: C(5,2) * C(7,1) = 10 * 7 = 70. Total outcomes: C(12,3) = 12!/(9!3!) = 220. Probability = 70/220 = 7/22.", hi: "अनुकूल परिणाम: C(5,2) * C(7,1) = 10 * 7 = 70। कुल परिणाम: C(12,3) = 12!/(9!3!) = 220। प्रायिकता = 70/220 = 7/22।", or: "ଅନୁକୂଳ ଫଳାଫଳ: C(5,2) * C(7,1) = 10 * 7 = 70। ମୋଟ ଫଳାଫଳ: C(12,3) = 12!/(9!3!) = 220। ସମ୍ଭାବନା = 70/220 = 7/22।" } },
+                { q: { en: "In a class of 30, 15 take music, 20 take art, 5 take both. Probability a student takes neither?", hi: "30 की एक कक्षा में, 15 संगीत लेते हैं, 20 कला लेते हैं, 5 दोनों लेते हैं। एक छात्र के कुछ भी न लेने की प्रायिकता क्या है?", or: "30 ଜଣଙ୍କ ଏକ ଶ୍ରେଣୀରେ, 15 ଜଣ ସଙ୍ଗୀତ ନିଅନ୍ତି, 20 ଜଣ କଳା ନିଅନ୍ତି, 5 ଜଣ ଉଭୟ ନିଅନ୍ତି। ଜଣେ ଛାତ୍ର କିଛି ନ ନେବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "0", hi: "0", or: "0" }, { en: "1/6", hi: "1/6", or: "1/6" }, { en: "1/3", hi: "1/3", or: "1/3" }, { en: "5/30", hi: "5/30", or: "5/30" }], answer: 0, explanation: { en: "Total taking at least one subject = Music + Art - Both = 15 + 20 - 5 = 30. Since all 30 students take at least one subject, the number of students taking neither is 0. Probability = 0/30 = 0.", hi: "कम से कम एक विषय लेने वालों की कुल संख्या = संगीत + कला - दोनों = 15 + 20 - 5 = 30। चूंकि सभी 30 छात्र कम से कम एक विषय लेते हैं, इसलिए कुछ भी न लेने वाले छात्रों की संख्या 0 है। प्रायिकता = 0/30 = 0।", or: "ଅତିକମରେ ଗୋଟିଏ ବିଷୟ ନେଉଥିବା ମୋଟ ସଂଖ୍ୟା = ସଙ୍ଗୀତ + କଳା - ଉଭୟ = 15 + 20 - 5 = 30। ଯେହେତୁ ସମସ୍ତ 30 ଛାତ୍ର ଅତିକମରେ ଗୋଟିଏ ବିଷୟ ନିଅନ୍ତି, ତେଣୁ କିଛି ନ ନେଉଥିବା ଛାତ୍ରଙ୍କ ସଂଖ୍ୟା 0 ଅଟେ। ସମ୍ଭାବନା = 0/30 = 0।" } },
+                { q: { en: "A machine has a 99% chance of detecting a defect if present, but a 5% false positive rate. If 1% of items are defective, what's P(Defect | Positive Test)?", hi: "एक मशीन में यदि कोई दोष मौजूद हो तो उसे 99% पहचानने की संभावना होती है, लेकिन 5% की गलत सकारात्मक दर होती है। यदि 1% वस्तुएँ दोषपूर्ण हैं, तो P(दोष | सकारात्मक परीक्षण) क्या है?", or: "ଏକ ମେସିନରେ ଯଦି କୌଣସି ତ୍ରୁଟି ଥାଏ ତେବେ ତାହାକୁ 99% ଚିହ୍ନଟ କରିବାର ସମ୍ଭାବନା ଅଛି, କିନ୍ତୁ 5% ମିଥ୍ୟା ସକାରାତ୍ମକ ହାର ଅଛି। ଯଦି 1% ଆଇଟମ୍ ତ୍ରୁଟିପୂର୍ଣ୍ଣ, ତେବେ P(ତ୍ରୁଟି | ସକାରାତ୍ମକ ପରୀକ୍ଷା) କ'ଣ?" }, options: [{ en: "~16.6%", hi: "~16.6%", or: "~16.6%" }, { en: "~99%", hi: "~99%", or: "~99%" }, { en: "~1%", hi: "~1%", or: "~1%" }, { en: "~5%", hi: "~5%", or: "~5%" }], answer: 0, explanation: { en: "Using Bayes' Theorem: P(D|+) = [P(+|D)P(D)] / [P(+|D)P(D) + P(+|not D)P(not D)] = (0.99*0.01) / (0.99*0.01 + 0.05*0.99) = 0.0099 / (0.0099 + 0.0495) = 0.0099 / 0.0594 ≈ 0.166 or 16.6%.", hi: "बेयस के प्रमेय का उपयोग करते हुए: P(D|+) = [P(+|D)P(D)] / [P(+|D)P(D) + P(+|not D)P(not D)] = (0.99*0.01) / (0.99*0.01 + 0.05*0.99) = 0.0099 / (0.0099 + 0.0495) = 0.0099 / 0.0594 ≈ 0.166 या 16.6%।", or: "ବେୟସଙ୍କ ଥିଓରେମ୍ ବ୍ୟବହାର କରି: P(D|+) = [P(+|D)P(D)] / [P(+|D)P(D) + P(+|not D)P(not D)] = (0.99*0.01) / (0.99*0.01 + 0.05*0.99) = 0.0099 / (0.0099 + 0.0495) = 0.0099 / 0.0594 ≈ 0.166 କିମ୍ବା 16.6%।" } },
+                { q: { en: "What is the probability of being dealt a full house (e.g., KKK 22) in a 5-card poker hand?", hi: "5-कार्ड पोकर हैंड में एक फुल हाउस (जैसे, KKK 22) मिलने की प्रायिकता क्या है?", or: "5-କାର୍ଡ ପୋକର ହାତରେ ଏକ ଫୁଲ୍ ହାଉସ୍ (ଯଥା, KKK 22) ପାଇବାର ସମ୍ଭାବନା କ'ଣ?" }, options: [{ en: "~0.144%", hi: "~0.144%", or: "~0.144%" }, { en: "~1.5%", hi: "~1.5%", or: "~1.5%" }, { en: "~0.01%", hi: "~0.01%", or: "~0.01%" }, { en: "~2.5%", hi: "~2.5%", or: "~2.5%" }], answer: 0, explanation: { en: "Number of ways to get a full house: C(13,1)*C(4,3) * C(12,1)*C(4,2) = 3744. Total 5-card hands: C(52,5) = 2,598,960. Probability = 3744 / 2,598,960 ≈ 0.00144 or 0.144%.", hi: "एक फुल हाउस प्राप्त करने के तरीकों की संख्या: C(13,1)*C(4,3) * C(12,1)*C(4,2) = 3744। कुल 5-कार्ड हैंड: C(52,5) = 2,598,960। प्रायिकता = 3744 / 2,598,960 ≈ 0.00144 या 0.144%।", or: "ଏକ ଫୁଲ୍ ହାଉସ୍ ପାଇବାର ଉପାୟ ସଂଖ୍ୟା: C(13,1)*C(4,3) * C(12,1)*C(4,2) = 3744। ମୋଟ 5-କାର୍ଡ ହାତ: C(52,5) = 2,598,960। ସମ୍ଭାବନା = 3744 / 2,598,960 ≈ 0.00144 କିମ୍ବା 0.144%।" } }
+            ]
+        }
+    };
+    
+    // --- GAME LOGIC ---
+
+    function updateUIText() {
+        const t = translations[currentLanguage];
+        document.getElementById('welcome-subtitle').innerText = t.welcomeSubtitle;
+        document.getElementById('config-title').innerText = t.configTitle;
+        document.getElementById('domain-title').innerText = t.domainTitle;
+        document.getElementById('calculus-btn').innerText = t.calculus;
+        document.getElementById('probability-btn').innerText = t.probability;
+        document.getElementById('difficulty-title').innerText = t.difficultyTitle;
+        document.getElementById('easy-btn').innerText = t.easy;
+        document.getElementById('medium-btn').innerText = t.medium;
+        document.getElementById('hard-btn').innerText = t.hard;
+        document.getElementById('score-text').innerText = ${t.score}: ${score};
+        document.getElementById('progress-text').innerText = ${t.question} ${currentQuestionIndex + 1}/${questions.length};
+        document.getElementById('modal-title').innerText = t.modalTitle;
+        document.getElementById('modal-correct-answer').innerText = t.modalCorrectAnswer;
+        document.getElementById('modal-next-btn').innerText = t.modalNextBtn;
+        document.getElementById('final-modal-title').innerText = t.finalModalTitle;
+        document.getElementById('final-score-text').innerText = t.finalScoreText;
+        document.getElementById('restart-btn').innerText = t.restartBtn;
+        document.getElementById('home-btn').innerText = t.homeBtn;
+    }
+
+    function setLanguage(lang) {
+        currentLanguage = lang;
+        updateUIText();
+        languageSelection.classList.add('hidden');
+        configSelection.classList.remove('hidden');
+    }
+
+    function setDomain(domain) {
+        currentDomain = domain;
+        document.getElementById('calculus-btn').classList.toggle('btn-primary', domain === 'calculus');
+        document.getElementById('calculus-btn').classList.toggle('btn-secondary', domain !== 'calculus');
+        document.getElementById('probability-btn').classList.toggle('btn-primary', domain === 'probability');
+        document.getElementById('probability-btn').classList.toggle('btn-secondary', domain !== 'probability');
+    }
+
+    function setDifficulty(difficulty) {
+        if (!currentDomain) {
+            alert(currentLanguage === 'hi' ? 'कृपया पहले एक डोमेन चुनें' : currentLanguage === 'or' ? 'ପ୍ରଥମେ ଏକ ଡୋମେନ୍ ବାଛନ୍ତୁ' : 'Please choose a domain first');
+            return;
+        }
+        currentDifficulty = difficulty;
+        startGame();
+    }
+    
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function startGame() {
+        score = 0;
+        currentQuestionIndex = 0;
+        questions = [...allQuestions[currentDomain][currentDifficulty]];
+        shuffleArray(questions); // Randomize question order
+        configSelection.classList.add('hidden');
+        gameScreen.classList.remove('hidden');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        questionsAnswered = false;
+        feedbackContainer.innerHTML = '';
+        if (currentQuestionIndex >= questions.length) {
+            showFinalScore();
+            return;
+        }
+        
+        const question = questions[currentQuestionIndex];
+        questionText.innerText = question.q[currentLanguage];
+        optionsContainer.innerHTML = '';
+        
+        question.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.innerText = option[currentLanguage];
+            button.classList.add('btn', 'option-btn', 'text-white', 'font-semibold', 'py-3', 'px-5', 'rounded-lg', 'w-full', 'text-left');
+            button.onclick = () => selectAnswer(index, button);
+            optionsContainer.appendChild(button);
+        });
+
+        updateUIText();
+    }
+    
+    function selectAnswer(selectedIndex, button) {
+        if (questionsAnswered) return;
+        questionsAnswered = true;
+
+        const question = questions[currentQuestionIndex];
+        const isCorrect = selectedIndex === question.answer;
+        
+        const feedbackText = document.createElement('p');
+        feedbackText.classList.add('text-3xl', 'font-bold', 'feedback-animation');
+
+        if (isCorrect) {
+            score++;
+            button.classList.add('correct');
+            const feedbackMessages = translations[currentLanguage].correctFeedback;
+            feedbackText.innerText = feedbackMessages[Math.floor(Math.random() * feedbackMessages.length)];
+            feedbackText.classList.add('text-green-400');
+            feedbackContainer.appendChild(feedbackText);
+            setTimeout(nextQuestion, 2000);
+        } else {
+            button.classList.add('wrong');
+            // Highlight the correct answer
+            const correctButton = optionsContainer.children[question.answer];
+            correctButton.classList.add('correct');
+            showExplanation();
+        }
+        
+        scoreText.innerText = ${translations[currentLanguage].score}: ${score};
+    }
+
+    function showExplanation() {
+        const question = questions[currentQuestionIndex];
+        const correctAnswerText = question.options[question.answer][currentLanguage];
+        
+        document.getElementById('modal-correct-answer').innerText = ${translations[currentLanguage].modalCorrectAnswer} ${correctAnswerText};
+        document.getElementById('modal-explanation').innerText = question.explanation[currentLanguage];
+        explanationModal.classList.remove('hidden');
+    }
+    
+    function closeExplanationModal() {
+        explanationModal.classList.add('hidden');
+        nextQuestion();
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        loadQuestion();
+    }
+
+    function showFinalScore() {
+        gameScreen.classList.add('hidden');
+        finalScoreModal.classList.remove('hidden');
+        document.getElementById('final-score-display').innerText = ${score}/${questions.length};
+    }
+
+    function restartGame() {
+        finalScoreModal.classList.add('hidden');
+        // Reset domain/difficulty buttons style
+        ['calculus-btn', 'probability-btn', 'easy-btn', 'medium-btn', 'hard-btn'].forEach(id => {
+            const btn = document.getElementById(id);
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-secondary');
+        });
+        currentDomain = '';
+        currentDifficulty = '';
+        configSelection.classList.remove('hidden');
+    }
+    
+    function goHome() {
+        finalScoreModal.classList.add('hidden');
+        restartGame(); // Also resets config screen
+        configSelection.classList.add('hidden');
+        languageSelection.classList.remove('hidden');
+    }
+
+</script>
+</body>
+</html>
