@@ -88,7 +88,10 @@
 
         <!-- Domain and Difficulty Selection Screen -->
         <div id="config-selection" class="hidden">
-            <div class="glass-card p-8 rounded-2xl shadow-2xl">
+            <div class="glass-card p-8 rounded-2xl shadow-2xl relative">
+                 <button id="back-to-lang-btn" class="absolute top-4 left-4 btn btn-secondary p-2 rounded-full hover:bg-violet-500 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg>
+                </button>
                 <h2 class="text-3xl font-bold text-center mb-6" id="config-title">Game Setup</h2>
                 
                 <!-- Notification Area -->
@@ -119,7 +122,12 @@
         <div id="game-screen" class="hidden">
             <div class="glass-card p-6 md:p-8 rounded-2xl shadow-2xl w-full">
                 <div class="flex justify-between items-center mb-4">
-                    <div id="progress-text" class="text-slate-300">Question 1/10</div>
+                    <div class="flex items-center gap-4">
+                         <button id="back-to-config-btn" class="btn btn-secondary p-2 rounded-full hover:bg-violet-500 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg>
+                         </button>
+                         <div id="progress-text" class="text-slate-300">Question 1/10</div>
+                    </div>
                     <div id="score-text" class="text-slate-300">Score: 0</div>
                 </div>
                 <div class="bg-slate-900/50 p-6 rounded-lg mb-6 min-h-[120px] flex items-center justify-center">
@@ -470,24 +478,43 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('final-score-display').innerText = `${score}/${questions.length}`;
     }
 
-    function restartGame() {
-        finalScoreModal.classList.add('hidden');
-        // Reset domain/difficulty buttons style
-        ['calculus-btn', 'probability-btn', 'easy-btn', 'medium-btn', 'hard-btn'].forEach(id => {
+    function resetConfigScreen() {
+        ['calculus-btn', 'probability-btn'].forEach(id => {
             const btn = document.getElementById(id);
             btn.classList.remove('btn-primary');
             btn.classList.add('btn-secondary');
         });
         currentDomain = '';
         currentDifficulty = '';
+    }
+
+    function restartGame() {
+        finalScoreModal.classList.add('hidden');
+        resetConfigScreen();
         configSelection.classList.remove('hidden');
     }
     
     function goHome() {
         finalScoreModal.classList.add('hidden');
-        restartGame(); // Also resets config screen
+        resetConfigScreen();
         configSelection.classList.add('hidden');
         languageSelection.classList.remove('hidden');
+    }
+
+    function goBackToLanguageSelection() {
+        configSelection.classList.add('hidden');
+        languageSelection.classList.remove('hidden');
+        resetConfigScreen();
+    }
+
+    function goBackToConfig() {
+        gameScreen.classList.add('hidden');
+        configSelection.classList.remove('hidden');
+        score = 0;
+        currentQuestionIndex = 0;
+        questions = [];
+        questionsAnswered = false;
+        updateUIText();
     }
 
     // --- EVENT LISTENERS ---
@@ -505,6 +532,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('modal-next-btn').addEventListener('click', closeExplanationModal);
     document.getElementById('restart-btn').addEventListener('click', restartGame);
     document.getElementById('home-btn').addEventListener('click', goHome);
+    document.getElementById('back-to-lang-btn').addEventListener('click', goBackToLanguageSelection);
+    document.getElementById('back-to-config-btn').addEventListener('click', goBackToConfig);
 });
 </script>
 </body>
