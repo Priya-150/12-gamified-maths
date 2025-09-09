@@ -80,9 +80,9 @@
             <h1 class="text-4xl md:text-5xl font-bold mb-2 text-white">Welcome!</h1>
             <h2 class="text-xl md:text-2xl font-semibold mb-8 text-slate-300" id="welcome-subtitle">Choose Your Language</h2>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <button onclick="setLanguage('en')" class="btn btn-primary text-white font-bold py-4 px-6 rounded-lg text-lg">English</button>
-                <button onclick="setLanguage('hi')" class="btn btn-primary text-white font-bold py-4 px-6 rounded-lg text-lg">हिन्दी</button>
-                <button onclick="setLanguage('or')" class="btn btn-primary text-white font-bold py-4 px-6 rounded-lg text-lg">ଓଡ଼ିଆ</button>
+                <button id="lang-en-btn" class="btn btn-primary text-white font-bold py-4 px-6 rounded-lg text-lg">English</button>
+                <button id="lang-hi-btn" class="btn btn-primary text-white font-bold py-4 px-6 rounded-lg text-lg">हिन्दी</button>
+                <button id="lang-or-btn" class="btn btn-primary text-white font-bold py-4 px-6 rounded-lg text-lg">ଓଡ଼ିଆ</button>
             </div>
         </div>
 
@@ -91,12 +91,15 @@
             <div class="glass-card p-8 rounded-2xl shadow-2xl">
                 <h2 class="text-3xl font-bold text-center mb-6" id="config-title">Game Setup</h2>
                 
+                <!-- Notification Area -->
+                <div id="config-notification" class="text-center text-red-400 font-semibold mb-4 h-6"></div>
+
                 <!-- Domain Selection -->
                 <div class="mb-8">
                     <h3 class="text-xl font-semibold mb-4" id="domain-title">1. Choose a Domain</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <button id="calculus-btn" onclick="setDomain('calculus')" class="btn btn-secondary text-white font-bold py-3 px-5 rounded-lg">Calculus</button>
-                        <button id="probability-btn" onclick="setDomain('probability')" class="btn btn-secondary text-white font-bold py-3 px-5 rounded-lg">Probability</button>
+                        <button id="calculus-btn" class="btn btn-secondary text-white font-bold py-3 px-5 rounded-lg">Calculus</button>
+                        <button id="probability-btn" class="btn btn-secondary text-white font-bold py-3 px-5 rounded-lg">Probability</button>
                     </div>
                 </div>
 
@@ -104,9 +107,9 @@
                 <div>
                     <h3 class="text-xl font-semibold mb-4" id="difficulty-title">2. Choose a Difficulty</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <button id="easy-btn" onclick="setDifficulty('easy')" class="btn btn-secondary text-white font-bold py-3 px-5 rounded-lg">Easy</button>
-                        <button id="medium-btn" onclick="setDifficulty('medium')" class="btn btn-secondary text-white font-bold py-3 px-5 rounded-lg">Medium</button>
-                        <button id="hard-btn" onclick="setDifficulty('hard')" class="btn btn-secondary text-white font-bold py-3 px-5 rounded-lg">Hard</button>
+                        <button id="easy-btn" class="btn btn-secondary text-white font-bold py-3 px-5 rounded-lg">Easy</button>
+                        <button id="medium-btn" class="btn btn-secondary text-white font-bold py-3 px-5 rounded-lg">Medium</button>
+                        <button id="hard-btn" class="btn btn-secondary text-white font-bold py-3 px-5 rounded-lg">Hard</button>
                     </div>
                 </div>
             </div>
@@ -137,7 +140,7 @@
             <h2 id="modal-title" class="text-2xl font-bold mb-4 text-red-400">Incorrect!</h2>
             <p id="modal-correct-answer" class="mb-4 text-lg">The correct answer is:</p>
             <div id="modal-explanation" class="bg-slate-900/50 p-4 rounded-lg mb-6 text-slate-300"></div>
-            <button id="modal-next-btn" onclick="closeExplanationModal()" class="btn btn-primary text-white font-bold py-2 px-6 rounded-lg">Next Question</button>
+            <button id="modal-next-btn" class="btn btn-primary text-white font-bold py-2 px-6 rounded-lg">Next Question</button>
         </div>
     </div>
 
@@ -148,14 +151,15 @@
             <p id="final-score-text" class="text-xl mb-6 text-slate-300">Your final score is:</p>
             <p id="final-score-display" class="text-6xl font-bold mb-8 text-violet-400"></p>
             <div class="flex gap-4 justify-center">
-                <button id="restart-btn" onclick="restartGame()" class="btn btn-primary text-white font-bold py-3 px-6 rounded-lg">Play Again</button>
-                 <button id="home-btn" onclick="goHome()" class="btn btn-secondary text-white font-bold py-3 px-6 rounded-lg">Home</button>
+                <button id="restart-btn" class="btn btn-primary text-white font-bold py-3 px-6 rounded-lg">Play Again</button>
+                 <button id="home-btn" class="btn btn-secondary text-white font-bold py-3 px-6 rounded-lg">Home</button>
             </div>
         </div>
     </div>
 
 
 <script>
+document.addEventListener('DOMContentLoaded', () => {
     // --- STATE MANAGEMENT ---
     let currentLanguage = 'en';
     let currentDomain = '';
@@ -168,6 +172,7 @@
     // --- DOM ELEMENTS ---
     const languageSelection = document.getElementById('language-selection');
     const configSelection = document.getElementById('config-selection');
+    const configNotification = document.getElementById('config-notification');
     const gameScreen = document.getElementById('game-screen');
     const questionText = document.getElementById('question-text');
     const optionsContainer = document.getElementById('options-container');
@@ -200,10 +205,11 @@
             finalModalTitle: "Game Over!",
             finalScoreText: "Your final score is:",
             restartBtn: "Play Again",
-            homeBtn: "Home"
+            homeBtn: "Home",
+            domainFirst: "Please choose a domain first"
         },
         hi: {
-            welcomeSubtitle: "अपनी भाषा चुनें",
+            welcomeSubtitle: " अपनी भाषा चुनें",
             configTitle: "गेम सेटअप",
             domainTitle: "1. एक डोमेन चुनें",
             calculus: "कैलकुलस",
@@ -221,7 +227,8 @@
             finalModalTitle: "खेल खत्म!",
             finalScoreText: "आपका अंतिम स्कोर है:",
             restartBtn: "फिर से खेलें",
-            homeBtn: "होम"
+            homeBtn: "होम",
+            domainFirst: "कृपया पहले एक डोमेन चुनें"
         },
         or: {
             welcomeSubtitle: "ଆପଣଙ୍କ ଭାଷା ବାଛନ୍ତୁ",
@@ -242,7 +249,8 @@
             finalModalTitle: "ଖେଳ ସମାପ୍ତ!",
             finalScoreText: "ଆପଣଙ୍କର ଅନ୍ତିମ ସ୍କୋର ହେଉଛି:",
             restartBtn: "ପୁଣି ଖେଳନ୍ତୁ",
-            homeBtn: "ହୋମ୍"
+            homeBtn: "ହୋମ୍",
+            domainFirst: "ପ୍ରଥମେ ଏକ ଡୋମେନ୍ ବାଛନ୍ତୁ"
         }
     };
     
@@ -327,8 +335,10 @@
         document.getElementById('easy-btn').innerText = t.easy;
         document.getElementById('medium-btn').innerText = t.medium;
         document.getElementById('hard-btn').innerText = t.hard;
-        document.getElementById('score-text').innerText = ${t.score}: ${score};
-        document.getElementById('progress-text').innerText = ${t.question} ${currentQuestionIndex + 1}/${questions.length};
+        document.getElementById('score-text').innerText = `${t.score}: ${score}`;
+        if(questions.length > 0) {
+            document.getElementById('progress-text').innerText = `${t.question} ${currentQuestionIndex + 1}/${questions.length}`;
+        }
         document.getElementById('modal-title').innerText = t.modalTitle;
         document.getElementById('modal-correct-answer').innerText = t.modalCorrectAnswer;
         document.getElementById('modal-next-btn').innerText = t.modalNextBtn;
@@ -351,11 +361,15 @@
         document.getElementById('calculus-btn').classList.toggle('btn-secondary', domain !== 'calculus');
         document.getElementById('probability-btn').classList.toggle('btn-primary', domain === 'probability');
         document.getElementById('probability-btn').classList.toggle('btn-secondary', domain !== 'probability');
+        configNotification.innerText = ''; // Clear notification when domain is selected
     }
 
     function setDifficulty(difficulty) {
         if (!currentDomain) {
-            alert(currentLanguage === 'hi' ? 'कृपया पहले एक डोमेन चुनें' : currentLanguage === 'or' ? 'ପ୍ରଥମେ ଏକ ଡୋମେନ୍ ବାଛନ୍ତୁ' : 'Please choose a domain first');
+            configNotification.innerText = translations[currentLanguage].domainFirst;
+            setTimeout(() => {
+                configNotification.innerText = '';
+            }, 3000);
             return;
         }
         currentDifficulty = difficulty;
@@ -428,14 +442,14 @@
             showExplanation();
         }
         
-        scoreText.innerText = ${translations[currentLanguage].score}: ${score};
+        scoreText.innerText = `${translations[currentLanguage].score}: ${score}`;
     }
 
     function showExplanation() {
         const question = questions[currentQuestionIndex];
         const correctAnswerText = question.options[question.answer][currentLanguage];
         
-        document.getElementById('modal-correct-answer').innerText = ${translations[currentLanguage].modalCorrectAnswer} ${correctAnswerText};
+        document.getElementById('modal-correct-answer').innerText = `${translations[currentLanguage].modalCorrectAnswer} ${correctAnswerText}`;
         document.getElementById('modal-explanation').innerText = question.explanation[currentLanguage];
         explanationModal.classList.remove('hidden');
     }
@@ -453,7 +467,7 @@
     function showFinalScore() {
         gameScreen.classList.add('hidden');
         finalScoreModal.classList.remove('hidden');
-        document.getElementById('final-score-display').innerText = ${score}/${questions.length};
+        document.getElementById('final-score-display').innerText = `${score}/${questions.length}`;
     }
 
     function restartGame() {
@@ -476,6 +490,23 @@
         languageSelection.classList.remove('hidden');
     }
 
+    // --- EVENT LISTENERS ---
+    document.getElementById('lang-en-btn').addEventListener('click', () => setLanguage('en'));
+    document.getElementById('lang-hi-btn').addEventListener('click', () => setLanguage('hi'));
+    document.getElementById('lang-or-btn').addEventListener('click', () => setLanguage('or'));
+
+    document.getElementById('calculus-btn').addEventListener('click', () => setDomain('calculus'));
+    document.getElementById('probability-btn').addEventListener('click', () => setDomain('probability'));
+
+    document.getElementById('easy-btn').addEventListener('click', () => setDifficulty('easy'));
+    document.getElementById('medium-btn').addEventListener('click', () => setDifficulty('medium'));
+    document.getElementById('hard-btn').addEventListener('click', () => setDifficulty('hard'));
+
+    document.getElementById('modal-next-btn').addEventListener('click', closeExplanationModal);
+    document.getElementById('restart-btn').addEventListener('click', restartGame);
+    document.getElementById('home-btn').addEventListener('click', goHome);
+});
 </script>
 </body>
 </html>
+
